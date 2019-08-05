@@ -1,13 +1,25 @@
 function easing(x) {
   return x;
-  // return 4 * (x - 0.5) ** 3 + 0.5;
 }
 
 class Creature {
-  constructor() {
+  constructor(r, p, creatures) {
     // 画面中央
-    this.p = createVector(windowWidth / 2, windowHeight / 2);
+    this.r = r;
+    this.p = p;
     this.path = [];
+    this.creatures = creatures;
+  }
+  update() {
+    this.r++;
+    // 5%の確率で分裂
+    if (random() < 0.02) {
+      this.r = R;
+      this.creatures.push(new Creature(R, this.p, this.creatures));
+      while (this.creatures.length > POPULATION) {
+        this.creatures.shift();
+      }
+    }
   }
   move() {
     if (this.path.length > 0) {
@@ -27,6 +39,6 @@ class Creature {
   }
   draw() {
     fill('#56a764');
-    circle(this.p.x, this.p.y, 100);
+    circle(this.p.x, this.p.y, this.r);
   }
 }
