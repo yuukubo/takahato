@@ -15,7 +15,7 @@ class Plants extends Map {
   count() {
     for (const plant of this.values()) {
       plant.count = [...this.values()].filter((other) => {
-        return plant.p.dist(other.p) < NEAR;
+        return plant.p.dist(other.p) < plant.size * 2;
       }).length;
     }
   }
@@ -23,7 +23,7 @@ class Plants extends Map {
     for (const plant of this.values()) {
       if (plant.size < MIN) {
         this.remove(plant);
-      } else if (plant.size > MAX && random() < 0.1) {
+      } else if (plant.size > MAX) {
         const child = plant.create();
         this.add(child);
       }
@@ -43,24 +43,20 @@ class Plant {
     this.p = p;
     this.id = random(1000000);
     this.size = INIT;
-    this.count = 0; // 近隣生物の数
+    this.count = 1; // 近隣生物の数
   }
   create() {
-    this.size /= 2;
-    const q = createVector(random(windowWidth), random(windowHeight));
-    q.sub(this.p).limit(RANGE);
-    return new Plant(q.add(this.p));
+    const q = p5.Vector.random2D().mult(random(RANGE)).add(this.p);
+    const x = constrain(q.x, 0, windowWidth);
+    const y = constrain(q.y, 0, windowHeight);
+    return new Plant(createVector(x, y));
   }
   update() {
     // 十分なスペースで成長し、過密で衰弱する
-    if (this.count < 2) {
-      this.size += 4;
-    } else if (this.count < 4) {
-      this.size += 2;
-    } else if (this.count < 6) {
-      this.size -= 2;
+    if (this.count < DENSITY) {
+      this.size += 1;
     } else {
-      this.size -= 4;
+      this.size -= 2;
     }
   }
   draw() {
