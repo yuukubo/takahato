@@ -2,69 +2,69 @@ function easing(x) {
   return x;
 }
 
-class Creature {
-  constructor(r, p, creatures) {
-    this.r = r;
-    this.p = p;
-    this.path = [];
-    this.creatures = creatures;
+class Plants extends Map {
+  add(plant) {
+    this.set(plant.id, plant);
+    this.count();
   }
-  update(){
-    // must be override
+  remove(plant) {
+    this.delete(plant.id);
+    this.count();
   }
-  move() {
-    if (this.path.length > 0) {
-      // １フレーム移動
-      this.p = this.path.shift();
-    } else {
-      // 等速運動
-      const x = random(R, windowWidth - R);
-      const y = random(R, windowHeight - R);
-      const q = createVector(x, y);
-      const STEP = int(this.p.dist(q) / MOVE);
-      for (let i = 1; i <= STEP; i++) {
-        const x = i / STEP;
-        this.path.push(p5.Vector.lerp(this.p, q, easing(x)));
+  // 近接生物数、自身を含む
+  count() {
+    for (const plant of this.values()) {
+      plant.count = [...this.values()].filter((other) => {
+        return plant.p.dist(other.p) < NEAR;
+      }).length;
+    }
+  }
+  update() {
+    for (const plant of this.values()) {
+      if (plant.size < MIN) {
+        this.remove(plant);
+      } else if (plant.size > MAX && random() < 0.1) {
+        const child = plant.create();
+        this.add(child);
       }
+      plant.update();
+      plant.draw();
+    }
+  }
+  draw() {
+    for (const plant of this.values()) {
+      plant.draw();
+    }
+  }
+}
+
+class Plant {
+  constructor(p) {
+    this.p = p;
+    this.id = random(1000000);
+    this.size = INIT;
+    this.count = 0; // 近隣生物の数
+  }
+  create() {
+    this.size /= 2;
+    const q = createVector(random(windowWidth), random(windowHeight));
+    q.sub(this.p).limit(RANGE);
+    return new Plant(q.add(this.p));
+  }
+  update() {
+    // 十分なスペースで成長し、過密で衰弱する
+    if (this.count < 2) {
+      this.size += 4;
+    } else if (this.count < 4) {
+      this.size += 2;
+    } else if (this.count < 6) {
+      this.size -= 2;
+    } else {
+      this.size -= 4;
     }
   }
   draw() {
     fill('#56a764');
-    circle(this.p.x, this.p.y, sqrt(this.r) * 4);
-  }
-}
-
-class Plant extends Creature {
-  constructor(r, p, creatures) {
-    super(r, p, creatures);
-    this.type = "PLANT";
-
-    let v = p5.Vector.random2D().mult(random(RANGE));
-    let q = p5.Vector.add(this.p, v);
-    while (q.x < R || windowWidth - R < q.x || q.y < R || windowHeight - R < q.y) {
-      v.rotate(random());
-      q = p5.Vector.add(this.p, v);
-    }
-    this.p = q;
-  }
-  update() {
-    // 十分なスペースで成長し、過密で衰弱する
-    const neighbours = this.creatures.filter((c) => c.type === "PLANT" && this.p.dist(c.p) < 50).length;
-    if (neighbours < 2) {
-      this.r += 4;
-    } else if (neighbours < 4) {
-      this.r += 2;
-    } else if (neighbours < 6) {
-      this.r -= 2;
-    } else {
-      this.r -= 4;
-    }
-
-    // 十分に育つと分裂
-    if (this.r > 400 && random() < 0.1) {
-      this.creatures.push(new Plant(this.r / 4, this.p, this.creatures));
-    }
-  }
-  move() {
+    circle(this.p.x, this.p.y, this.size);
   }
 }
