@@ -34,5 +34,6 @@ class Creature {
       circle(w.x, w.y, 100);
     }
     circle(this.p.x, this.p.y, 100);
+    fill(200);
   }
 }
