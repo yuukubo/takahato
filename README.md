@@ -1,4 +1,4 @@
 ## demo
-https://tamura2004.github.io/takahato/
+https://yuukubo.github.io/takahato/
 
 ## developed v2
