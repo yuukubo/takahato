@@ -1,4 +1,4 @@
 ## demo
 https://yuukubo.github.io/takahato/
 
-## developed v2
+## stg ver

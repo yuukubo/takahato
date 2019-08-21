@@ -1,17 +1,15 @@
-// タカハトゲームのシミュレータ_v2 base
-const STEP = 30;
-const R = 50;
-const MAX_WAIT = 30;
+// stg
 
-let creature;
+let [x, y, vx, vy] = [10, 0, 2, 2];
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  creature = new Creature();
 }
 
 function draw() {
-  background(1,100,100);
-  creature.move();
-  creature.draw();
+  background(0);
+ if (windowHeight < y) { y = 0 , x = random( 0 , windowWidth ) }
+  y += vy;
+  fill(255, 255, 1);
+  circle(x, y, 10);
 }
