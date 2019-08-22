@@ -10,7 +10,7 @@ function draw() {
   background(0);
   if (x < 0) {x = 0}
   if (canvasx < x) {x = canvasx}
-  if (canvasy < y) { y = 0 , x = random( 0 , canvasx ) }
+  if (canvasy < y) {y = 0 , x = random(0 , canvasx)}
   y += vy;
  
   if (keyIsDown(LEFT_ARROW)) {
@@ -29,6 +29,13 @@ function draw() {
     if (y < canvasy) {y += 5}
   }
  
-  fill(255, 255, 1);
+  fallball();
+}
+
+function fallball() {
+  let star_R = (100 + x) % 255
+  let star_G = y % 255
+  let star_B = (x + y) % 255
+  fill(star_R, star_G, star_B);
   circle(x, y, 10);
 }
