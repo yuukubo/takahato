@@ -1,7 +1,10 @@
 // stg
 
 let [canvasx, canvasy] = [600, 700];
-let [frameXfrom, frameYfrom, frameXto, frameYto] = [40, 40, 380, 620];
+let [frameXfrom, frameYfrom, frameXto, frameYto] = [30, 30, 380, 640];
+let [textAx, textAy, textSizeA] = [430, 80, 32];
+let [textBx, textBy, textSizeB] = [440, 160, 24];
+let stgTitle = "* S T G *"
 let stars = new Array(4);
 let dice = 0;
 
@@ -15,6 +18,7 @@ function setup() {
 function draw() {
   background(35,25,70);
   stgframe();
+  textinfo();
 
   for (var i = 0; i < stars.length; i++) {
     stars[i].update();
@@ -40,6 +44,20 @@ function draw() {
 function stgframe() {
   fill(0);
   rect(frameXfrom, frameYfrom, frameXto, frameYto);
+}
+
+function textinfo() {
+  textSize(textSizeA);
+  
+  fill(255);
+  textAlign(LEFT);
+  text(stgTitle, textAx, textAy);
+
+  textSize(textSizeB);
+  
+  fill(255);
+  textAlign(LEFT);
+  text("stars : " + stars.length, textBx, textBy);
 }
 
 function diceroll() {
