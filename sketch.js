@@ -1,6 +1,7 @@
 // stg
 
-let [canvasx, canvasy] = [400, 500];
+let [canvasx, canvasy] = [600, 700];
+let [frameXfrom, frameYfrom, frameXto, frameYto] = [40, 40, 380, 620];
 let stars = new Array(4);
 let dice = 0;
 
@@ -12,11 +13,13 @@ function setup() {
 }
 
 function draw() {
-  background(0);
+  background(35,25,70);
+  stgframe();
+
   for (var i = 0; i < stars.length; i++) {
     stars[i].update();
-    stars[i].shootingstar();
     stars[i].limitchk();
+    stars[i].shootingstar();
     if (stars[i].vanishing_starlight === 1) {
       if (stars[i].cointoss) {
         stars[i].resurrection()
@@ -30,9 +33,14 @@ function draw() {
     diceroll()
     if (dice === 6) {
         stars.push(new Star());
-      }
     }
   }
+}
+
+function stgframe() {
+  fill(0);
+  rect(frameXfrom, frameYfrom, frameXto, frameYto);
+}
 
 function diceroll() {
   dice = Math.floor(Math.random() * 6 + 1);
@@ -42,8 +50,8 @@ class Star {
   constructor() {
     this.xspd = random(3,6);
     this.yspd = random(3,6);
-    this.star_x = Math.floor(Math.random() * (canvasx - 1)) + 1;
-    this.star_y = Math.floor(Math.random() * (canvasy - 1)) + 1;
+    this.star_x = random(frameXfrom, (frameXfrom + frameXto + 3) / 2);
+    this.star_y = random(frameYfrom, (frameYfrom + frameYto + 3) / 2);
     this.star_R = random(0,255);
     this.star_G = random(0,255);
     this.star_B = random(0,255);
@@ -62,8 +70,8 @@ class Star {
   }
 
   limitchk() {
-    if (this.star_x < 0 || canvasx < this.star_x) {this.vanishing()}
-    if (this.star_y < 0 || canvasy < this.star_y) {this.vanishing()}
+    if (this.star_x < frameXfrom || (frameXfrom + frameXto) < this.star_x) {this.vanishing()}
+    if (this.star_y < frameYfrom || (frameYfrom + frameYto) < this.star_y) {this.vanishing()}
   }
 
   vanishing() {
@@ -73,8 +81,8 @@ class Star {
   resurrection() {
     this.xspd = random(3,6);
     this.yspd = random(3,6);
-    this.star_x = Math.floor(Math.random() * (canvasx - 1)) + 1;
-    this.star_y = Math.floor(Math.random() * (canvasy - 1)) + 1;
+    this.star_x = random(frameXfrom, (frameXfrom + frameXto) / 2);
+    this.star_y = random(frameYfrom, (frameYfrom + frameYto) / 2);
     this.star_R = random(0,255);
     this.star_G = random(0,255);
     this.star_B = random(0,255);
