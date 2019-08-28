@@ -39,6 +39,9 @@ function draw() {
         stars.push(new Star());
     }
   }
+  if (100 < stars.length) {
+    stars.pop();
+  }
 }
 
 function stgframe() {
@@ -48,13 +51,13 @@ function stgframe() {
 
 function textinfo() {
   textSize(textSizeA);
-  
+  textFont("Comic Sans MS");
   fill(255);
   textAlign(LEFT);
   text(stgTitle, textAx, textAy);
 
   textSize(textSizeB);
-  
+  textFont("Comic Sans MS");
   fill(255);
   textAlign(LEFT);
   text("stars : " + stars.length, textBx, textBy);
