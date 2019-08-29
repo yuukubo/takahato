@@ -5,13 +5,13 @@ let [frameXfrom, frameYfrom, frameXto, frameYto] = [30, 30, 380, 640];
 let [textAx, textAy, textSizeA] = [430, 80, 32];
 let [textBx, textBy, textSizeB] = [440, 160, 24];
 let stgTitle = "* S T G *"
-let stars = new Array(4);
+let sakuras = new Array(4);
 let dice = 0;
 
 function setup() {
   createCanvas(canvasx, canvasy);
-  for (var i = 0; i < stars.length; i++) {
-    stars[i] = new Star();
+  for (var i = 0; i < sakuras.length; i++) {
+    sakuras[i] = new Sakura();
   }
 }
 
@@ -20,27 +20,23 @@ function draw() {
   stgframe();
   textinfo();
 
-  for (var i = 0; i < stars.length; i++) {
-    stars[i].update();
-    stars[i].limitchk();
-    stars[i].shootingstar();
-    if (stars[i].vanishing_starlight === 1) {
-      if (stars[i].cointoss) {
-        stars[i].resurrection()
-      } else {
-        stars.splice(i, 1);
-      }
+  for (var i = 0; i < sakuras.length; i++) {
+    sakuras[i].update();
+    sakuras[i].limitchk();
+    sakuras[i].draw();
+    if (sakuras[i].hitflg === 1) {
+        sakuras.splice(i, 1);
     }
   }
   diceroll()
   if (dice === 6) {
     diceroll()
     if (dice === 6) {
-        stars.push(new Star());
+        sakuras.push(new Sakura());
     }
   }
-  if (100 < stars.length) {
-    stars.pop();
+  if (100 < sakuras.length) {
+    sakuras.pop();
   }
 }
 
@@ -60,57 +56,81 @@ function textinfo() {
   textFont("Comic Sans MS");
   fill(255);
   textAlign(LEFT);
-  text("stars : " + stars.length, textBx, textBy);
+  text("sakuras : " + sakuras.length, textBx, textBy);
 }
 
 function diceroll() {
   dice = Math.floor(Math.random() * 6 + 1);
 }
 
-class Star {
+class Sprite {
   constructor() {
-    this.xspd = random(3,6);
-    this.yspd = random(3,6);
-    this.star_x = random(frameXfrom, (frameXfrom + frameXto + 3) / 2);
-    this.star_y = random(frameYfrom, (frameYfrom + frameYto + 3) / 2);
-    this.star_R = random(0,255);
-    this.star_G = random(0,255);
-    this.star_B = random(0,255);
-    this.vanishing_starlight = 0;
-    this.coin = false;
+    this.xspd = 0;
+    this.yspd = 0;
+    this.sprite_x = 0;
+    this.sprite_y = 0;
+    this.sprite_R = 0;
+    this.sprite_G = 0;
+    this.sprite_B = 0;
+    this.hitflg = false;
+    this.age = 0
   }
 
   update() {
-    this.star_x = this.star_x + 1 * this.xspd;
-    this.star_y = this.star_y + 1 * this.yspd;
-  }
-  
-  shootingstar() {
-    fill(this.star_R, this.star_G, this.star_B);
-    circle(this.star_x, this.star_y, 10);
+    this.sprite_x = this.sprite_x + 1 * this.xspd;
+    this.sprite_y = this.sprite_y + 1 * this.yspd;
+    this.age++
   }
 
   limitchk() {
-    if (this.star_x < frameXfrom || (frameXfrom + frameXto) < this.star_x) {this.vanishing()}
-    if (this.star_y < frameYfrom || (frameYfrom + frameYto) < this.star_y) {this.vanishing()}
-  }
-
-  vanishing() {
-    this.vanishing_starlight = 1;
-  }
-
-  resurrection() {
-    this.xspd = random(3,6);
-    this.yspd = random(3,6);
-    this.star_x = random(frameXfrom, (frameXfrom + frameXto) / 2);
-    this.star_y = random(frameYfrom, (frameYfrom + frameYto) / 2);
-    this.star_R = random(0,255);
-    this.star_G = random(0,255);
-    this.star_B = random(0,255);
-    this.vanishing_starlight = 0;
+    if (this.sprite_x < frameXfrom || (frameXfrom + frameXto) < this.sprite_x) {this.hit()}
+    if (this.sprite_y < frameYfrom || (frameYfrom + frameYto) < this.sprite_y) {this.hit()}
   }
   
-  cointoss() {
-    this.coin = Math.floor(Math.random() * 2) == 0;
+  draw() {
+    fill(this.sprite_R, this.sprite_G, this.sprite_B);
+  }
+
+  hit() {
+    this.hitflg = 1;
+  }
+
+}
+class Sakura extends Sprite {
+  constructor() {
+    super();
+    this.xspd = random(0,2);
+    this.yspd = random(0.1,2);
+    this.sprite_x = random(frameXfrom, (frameXfrom + frameXto - 3) / 2);
+    this.sprite_y = random(frameYfrom, (frameYfrom + frameYto - 3) / 2);
+    this.sprite_R = random(224,255);
+    this.sprite_G = random(128,192);
+    this.sprite_B = random(192,255);
+  }
+
+  update() {
+    super.update();
+    this.swing();
+  }
+
+  limitchk() {
+    super.limitchk();
+  }
+  
+  draw() {
+    super.draw();
+//    fill(this.sprite_R, this.sprite_G, this.sprite_B);
+    circle(this.sprite_x, this.sprite_y, 10);
+  }
+
+  hit() {
+    super.hit();
+  }
+
+  swing() {
+    if(this.age % 120 === 0) {
+      this.xspd = random(0,2);
+      this.yspd = random(0.1,2);
+    }
   }
 }
