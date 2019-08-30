@@ -89,8 +89,15 @@ class Game {
         this.sakuras.push(new Sakura());
       }
     }
+    if(this.age % 3600 === 0) {
+      for (var i = 0; i < 50; i++) {
+        this.sakuras.push(new Sakura());
+      }
+    }
     if (100 < this.sakuras.length) {
-      this.sakuras.pop();
+      for (var i = this.sakuras.length; 100 < i; i--) {
+        this.sakuras.pop();
+      }
     }
     this.getsakuraslength()
   }
