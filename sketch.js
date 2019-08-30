@@ -7,15 +7,10 @@ let [textBx, textBy, textSizeB] = [440, 160, 24];
 let stgTitle = "* S T G *"
 let dice = 0;
 let game;
-let sakuras;
 
 function setup() {
   createCanvas(canvasx, canvasy);
   game = new Game();
-  sakuras = new Array(4);
-      for (var i = 0; i < sakuras.length; i++) {
-    sakuras[i] = new Sakura();
-  }
 }
 
 function draw() {
@@ -26,6 +21,7 @@ class Game {
   constructor() {
     this.gamescenenow = "title";
     this.age = 0;
+    this.needsetupflg = true;
   }
 
   update() {
@@ -38,9 +34,11 @@ class Game {
   scenectl() {
     if (this.gamescenenow === "title") {
       this.scenetitle();
+      this.update();
     }
     if (this.gamescenenow === "stage1") {
       this.scenestage1();
+      this.update();
     }
   }
 
@@ -51,6 +49,7 @@ class Game {
       this.gamescenenow = "stage1";
     }
   }
+
   titlelogo() {
     textSize(64);
     textFont("Comic Sans MS");
@@ -67,28 +66,44 @@ class Game {
 
   scenestage1() {
 
+    if (this.needsetupflg === true) {
+      this.stage1setup();
+      this.needsetupflg = false;
+    }
     background(35,25,70);
     stgframe();
     textinfo();
-  
-    for (var i = 0; i < sakuras.length; i++) {
-      sakuras[i].update();
-      sakuras[i].limitchk();
-      sakuras[i].draw();
-      if (sakuras[i].hitflg === 1) {
-          sakuras.splice(i, 1);
+
+    for (var i = 0; i < this.sakuras.length; i++) {
+      this.sakuras[i].update();
+      this.sakuras[i].limitchk();
+      this.sakuras[i].draw();
+      if (this.sakuras[i].hitflg === 1) {
+        this.sakuras.splice(i, 1);
       }
     }
     diceroll()
     if (dice === 6) {
-      diceroll()
+      diceroll();
       if (dice === 6) {
-          sakuras.push(new Sakura());
+        this.sakuras.push(new Sakura());
       }
     }
-    if (100 < sakuras.length) {
-      sakuras.pop();
+    if (100 < this.sakuras.length) {
+      this.sakuras.pop();
     }
+    this.getsakuraslength()
+  }
+
+  stage1setup() {
+    this.sakuras = new Array(Math.floor(random(4,20)));
+    for (var i = 0; i < this.sakuras.length; i++) {
+      this.sakuras[i] = new Sakura();
+    }
+  }
+
+  getsakuraslength() {
+    return this.sakuras.length;
   }
 }
 
@@ -108,7 +123,7 @@ function textinfo() {
   textFont("Comic Sans MS");
   fill(255);
   textAlign(LEFT);
-  text("sakuras : " + sakuras.length, textBx, textBy);
+  text("sakuras : " + game.getsakuraslength(), textBx, textBy);
 }
 
 function diceroll() {
