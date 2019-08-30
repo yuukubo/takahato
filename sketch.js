@@ -5,38 +5,90 @@ let [frameXfrom, frameYfrom, frameXto, frameYto] = [30, 30, 380, 640];
 let [textAx, textAy, textSizeA] = [430, 80, 32];
 let [textBx, textBy, textSizeB] = [440, 160, 24];
 let stgTitle = "* S T G *"
-let sakuras = new Array(4);
 let dice = 0;
+let game;
+let sakuras;
 
 function setup() {
   createCanvas(canvasx, canvasy);
-  for (var i = 0; i < sakuras.length; i++) {
+  game = new Game();
+  sakuras = new Array(4);
+      for (var i = 0; i < sakuras.length; i++) {
     sakuras[i] = new Sakura();
   }
 }
 
 function draw() {
-  background(35,25,70);
-  stgframe();
-  textinfo();
+  game.scenectl();
+}
 
-  for (var i = 0; i < sakuras.length; i++) {
-    sakuras[i].update();
-    sakuras[i].limitchk();
-    sakuras[i].draw();
-    if (sakuras[i].hitflg === 1) {
-        sakuras.splice(i, 1);
+class Game {
+  constructor() {
+    this.gamescenenow = "title";
+    this.age = 0;
+  }
+
+  update() {
+    this.age++;
+  }
+
+  draw() {
+  }
+
+  scenectl() {
+    if (this.gamescenenow === "title") {
+      this.scenetitle();
+    }
+    if (this.gamescenenow === "stage1") {
+      this.scenestage1();
     }
   }
-  diceroll()
-  if (dice === 6) {
+
+  scenetitle() {
+    background(0);
+    this.titlelogo();
+    if (keyIsDown(90)) {
+      this.gamescenenow = "stage1";
+    }
+  }
+  titlelogo() {
+    textSize(64);
+    textFont("Comic Sans MS");
+    fill(255);
+    textAlign(CENTER);
+    text(stgTitle, canvasx / 2, canvasy / 3);
+
+    textSize(16);
+    textFont("Comic Sans MS");
+    fill(255);
+    textAlign(LEFT);
+    text("press Z to start!!", canvasx / 2, canvasy * 2 / 3);
+  }
+
+  scenestage1() {
+
+    background(35,25,70);
+    stgframe();
+    textinfo();
+  
+    for (var i = 0; i < sakuras.length; i++) {
+      sakuras[i].update();
+      sakuras[i].limitchk();
+      sakuras[i].draw();
+      if (sakuras[i].hitflg === 1) {
+          sakuras.splice(i, 1);
+      }
+    }
     diceroll()
     if (dice === 6) {
-        sakuras.push(new Sakura());
+      diceroll()
+      if (dice === 6) {
+          sakuras.push(new Sakura());
+      }
     }
-  }
-  if (100 < sakuras.length) {
-    sakuras.pop();
+    if (100 < sakuras.length) {
+      sakuras.pop();
+    }
   }
 }
 
@@ -96,6 +148,7 @@ class Sprite {
   }
 
 }
+
 class Sakura extends Sprite {
   constructor() {
     super();
