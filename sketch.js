@@ -74,6 +74,10 @@ class Game {
     stgframe();
     textinfo();
 
+    this.jiki.update();
+    this.jiki.limitchk();
+    this.jiki.draw();
+
     for (var i = 0; i < this.sakuras.length; i++) {
       this.sakuras[i].update();
       this.sakuras[i].limitchk();
@@ -103,6 +107,7 @@ class Game {
   }
 
   stage1setup() {
+    this.jiki = new Jiki();
     this.sakuras = new Array(Math.floor(random(4,20)));
     for (var i = 0; i < this.sakuras.length; i++) {
       this.sakuras[i] = new Sakura();
@@ -194,7 +199,6 @@ class Sakura extends Sprite {
   
   draw() {
     super.draw();
-//    fill(this.sprite_R, this.sprite_G, this.sprite_B);
     circle(this.sprite_x, this.sprite_y, 10);
   }
 
@@ -207,5 +211,56 @@ class Sakura extends Sprite {
       this.xspd = random(0,2);
       this.yspd = random(0.1,2);
     }
+  }
+}
+
+class Jiki extends Sprite {
+  constructor() {
+    super();
+    this.xspd = 3;
+    this.yspd = 3;
+    this.sprite_x = (frameXfrom + frameXto) / 2;
+    this.sprite_y = (frameYfrom + frameYto) * 3 / 4;
+    this.sprite_R = 255;
+    this.sprite_G = 255;
+    this.sprite_B = 255;
+  }
+
+  update() {
+    if (keyIsDown(LEFT_ARROW)) {
+      if (frameXfrom < this.sprite_x) {
+        this.sprite_x -= this.xspd;
+      }
+    }
+    if (keyIsDown(RIGHT_ARROW)) {
+      if (this.sprite_x < (frameXfrom + frameXto)) {
+        this.sprite_x += this.xspd;
+      }
+    }
+    if (keyIsDown(UP_ARROW)) {
+      if (frameYfrom < this.sprite_y) {
+        this.sprite_y -= this.yspd;
+      }
+    }
+    if (keyIsDown(DOWN_ARROW)) {
+      if (this.sprite_y < (frameYfrom + frameYto)) {
+        this.sprite_y += this.yspd;
+      }
+    }
+  }
+
+  limitchk() {
+    if ((frameXfrom + frameXto) <= this.sprite_x) {this.sprite_x = (frameXfrom + frameXto)}
+    if (this.sprite_x <= frameXfrom) {this.sprite_x = frameXfrom}
+    if ((frameYfrom + frameYto) <= this.sprite_y) {this.sprite_y = (frameYfrom + frameYto)}
+    if (this.sprite_y <= frameYfrom) {this.sprite_y = frameYfrom}
+  }
+  
+  draw() {
+    super.draw();
+    circle(this.sprite_x, this.sprite_y, 10);
+  }
+
+  hit() {
   }
 }
