@@ -221,6 +221,8 @@ class Jiki extends Sprite {
     this.yspd = 3;
     this.sprite_x = (frameXfrom + frameXto) / 2;
     this.sprite_y = (frameYfrom + frameYto) * 3 / 4;
+    this.jiki_w = 10;
+    this.jiki_h = 10;
     this.sprite_R = 255;
     this.sprite_G = 255;
     this.sprite_B = 255;
@@ -250,15 +252,15 @@ class Jiki extends Sprite {
   }
 
   limitchk() {
-    if ((frameXfrom + frameXto) <= this.sprite_x) {this.sprite_x = (frameXfrom + frameXto)}
+    if ((frameXfrom + frameXto) <= this.sprite_x + this.jiki_w) {this.sprite_x = (frameXfrom + frameXto) - this.jiki_w}
     if (this.sprite_x <= frameXfrom) {this.sprite_x = frameXfrom}
-    if ((frameYfrom + frameYto) <= this.sprite_y) {this.sprite_y = (frameYfrom + frameYto)}
+    if ((frameYfrom + frameYto) <= this.sprite_y + this.jiki_h) {this.sprite_y = (frameYfrom + frameYto) - this.jiki_h}
     if (this.sprite_y <= frameYfrom) {this.sprite_y = frameYfrom}
   }
   
   draw() {
     super.draw();
-    circle(this.sprite_x, this.sprite_y, 10);
+    rect(this.sprite_x, this.sprite_y, this.jiki_w ,this.jiki_h);
   }
 
   hit() {
