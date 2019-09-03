@@ -78,21 +78,22 @@ class Game {
     this.jiki.limitchk();
     this.jiki.draw();
     if (this.jiki.shooting) {
-      this.bullets.push(new BulletFreindly(this.jiki.sprite_x, this.jiki.sprite_y));
+      if (this.jiki.cooltime <= 0) {
+        this.bullets.push(new BulletFreindly((this.jiki.sprite_x + this.jiki.sprite_w / 2), this.jiki.sprite_y));
+        this.jiki.cooltime = 6;
+      }
+      this.jiki.shooting = false;
     }
 
-//    console.log(this.bullets.length);
+    if (0 < this.jiki.cooltime) {
+      this.jiki.cooltime--;
+    }
+
     if (0 < this.bullets.length) {
-//      console.log("bullet loop");
       for (var i = 0; i < this.bullets.length; i++) {
-//        console.log(this.bullets[i]);
-//        console.log(this.bullets[i].sprite_x);
-//        console.log(this.bullets[i].sprite_y);
         this.bullets[i].update();
         this.bullets[i].limitchk();
         this.bullets[i].draw();
-        this.jiki.shooting = false;
-//        console.log(this.bullets[i].hitflg);
         if (this.bullets[i].hitflg) {
           this.bullets.splice(i, 1);
         }
@@ -124,15 +125,11 @@ class Game {
         this.sakuras.pop();
       }
     }
-//    this.getsakuraslength();
   }
 
   stage1setup() {
     this.jiki = new Jiki();
     this.bullets = [];
-//    console.log("bullets length");
-//    console.log(this.bullets.length);
-
     this.sakuras = new Array(Math.floor(random(4,20)));
     for (var i = 0; i < this.sakuras.length; i++) {
       this.sakuras[i] = new Sakura();
@@ -173,6 +170,8 @@ class Sprite {
     this.yspd = 0;
     this.sprite_x = 0;
     this.sprite_y = 0;
+    this.sprite_w = 0;
+    this.sprite_h = 0;
     this.sprite_R = 0;
     this.sprite_G = 0;
     this.sprite_B = 0;
@@ -207,6 +206,7 @@ class Shooter extends Sprite {
     this.shooter_x = 0;
     this.shooter_y = 0;
     this.shooting = false;
+    this.cooltime = 0;
   }
 
   update() {
@@ -226,9 +226,7 @@ class Shooter extends Sprite {
   }
 
   shoot() {
-//    console.log("shooter shoot!!");
     this.shooting = true;
-//    return this.bullets.push(new Bullet(this.shooter_x = shooter_x, this.shooter_y = shooter_y));
   }
 }
 
@@ -238,9 +236,6 @@ class Bullet extends Sprite {
     this.sprite_x = shooter_x;
     this.sprite_y = shooter_y;
     this.isFriend = false;
-//    console.log("bullet new!!");
-//    console.log(this.sprite_x);
-//    console.log(this.sprite_y);
   }
 
   update() {
@@ -253,8 +248,6 @@ class Bullet extends Sprite {
   
   draw() {
     super.draw();
-//    circle(this.sprite_x, this.sprite_y, 5);
-//    console.log("shoot!!");
   }
 
   hit() {
@@ -268,12 +261,11 @@ class BulletFreindly extends Bullet {
     this.isFriend = true;
     this.xspd = 0;
     this.yspd = -6;
-    this.sprite_R = 192;
-    this.sprite_G = 168;
-    this.sprite_B = 1;
-//    console.log("bullet new!!");
-//    console.log(this.sprite_x);
-//    console.log(this.sprite_y);
+    this.sprite_R = 255;
+    this.sprite_G = 200;
+    this.sprite_B = 255;
+    this.sprite_w = 10;
+    this.sprite_h = 20;
   }
 
   update() {
@@ -286,10 +278,7 @@ class BulletFreindly extends Bullet {
   
   draw() {
     super.draw();
-//    console.log(this.sprite_x);
-//    console.log(this.sprite_y);
-    circle(this.sprite_x, this.sprite_y, 20);
-//    console.log("jikishoot!!");
+    ellipse(this.sprite_x, this.sprite_y, this.sprite_w, this.sprite_h);
   }
 
   hit() {
@@ -342,8 +331,8 @@ class Jiki extends Shooter {
     this.yspd = 3;
     this.sprite_x = (frameXfrom + frameXto) / 2;
     this.sprite_y = (frameYfrom + frameYto) * 3 / 4;
-    this.jiki_w = 10;
-    this.jiki_h = 10;
+    this.sprite_w = 10;
+    this.sprite_h = 10;
     this.sprite_R = 255;
     this.sprite_G = 255;
     this.sprite_B = 255;
@@ -372,32 +361,25 @@ class Jiki extends Shooter {
     }
     if (keyIsDown(90)) {
       this.shoot();
-//      console.log(this.bullets[0]);
     }
   }
 
   limitchk() {
-    if ((frameXfrom + frameXto) <= this.sprite_x + this.jiki_w) {this.sprite_x = (frameXfrom + frameXto) - this.jiki_w}
+    if ((frameXfrom + frameXto) <= this.sprite_x + this.sprite_w) {this.sprite_x = (frameXfrom + frameXto) - this.sprite_w}
     if (this.sprite_x <= frameXfrom) {this.sprite_x = frameXfrom}
-    if ((frameYfrom + frameYto) <= this.sprite_y + this.jiki_h) {this.sprite_y = (frameYfrom + frameYto) - this.jiki_h}
+    if ((frameYfrom + frameYto) <= this.sprite_y + this.sprite_h) {this.sprite_y = (frameYfrom + frameYto) - this.sprite_h}
     if (this.sprite_y <= frameYfrom) {this.sprite_y = frameYfrom}
   }
   
   draw() {
     super.draw();
-    rect(this.sprite_x, this.sprite_y, this.jiki_w ,this.jiki_h);
+    rect(this.sprite_x, this.sprite_y, this.sprite_w ,this.sprite_h);
   }
 
   hit() {
   }
 
   shoot() {
-    super.shoot();
-//    console.log("jiki shoot!!");
-//    return super.shoot(this.sprite_x, this.sprite_y);
+      super.shoot();
   }
-
-//  getbullets() {
-//    return this.bullets;
-//  }
 }
