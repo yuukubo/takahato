@@ -77,12 +77,33 @@ class Game {
     this.jiki.update();
     this.jiki.limitchk();
     this.jiki.draw();
+    if (this.jiki.shooting) {
+      this.bullets.push(new BulletFreindly(this.jiki.sprite_x, this.jiki.sprite_y));
+    }
+
+//    console.log(this.bullets.length);
+    if (0 < this.bullets.length) {
+//      console.log("bullet loop");
+      for (var i = 0; i < this.bullets.length; i++) {
+//        console.log(this.bullets[i]);
+//        console.log(this.bullets[i].sprite_x);
+//        console.log(this.bullets[i].sprite_y);
+        this.bullets[i].update();
+        this.bullets[i].limitchk();
+        this.bullets[i].draw();
+        this.jiki.shooting = false;
+//        console.log(this.bullets[i].hitflg);
+        if (this.bullets[i].hitflg) {
+          this.bullets.splice(i, 1);
+        }
+      }
+    }
 
     for (var i = 0; i < this.sakuras.length; i++) {
       this.sakuras[i].update();
       this.sakuras[i].limitchk();
       this.sakuras[i].draw();
-      if (this.sakuras[i].hitflg === 1) {
+      if (this.sakuras[i].hitflg) {
         this.sakuras.splice(i, 1);
       }
     }
@@ -103,11 +124,15 @@ class Game {
         this.sakuras.pop();
       }
     }
-    this.getsakuraslength()
+//    this.getsakuraslength();
   }
 
   stage1setup() {
     this.jiki = new Jiki();
+    this.bullets = [];
+//    console.log("bullets length");
+//    console.log(this.bullets.length);
+
     this.sakuras = new Array(Math.floor(random(4,20)));
     for (var i = 0; i < this.sakuras.length; i++) {
       this.sakuras[i] = new Sakura();
@@ -171,16 +196,112 @@ class Sprite {
   }
 
   hit() {
-    this.hitflg = 1;
+    this.hitflg = true;
+  }
+}
+
+class Shooter extends Sprite {
+  constructor() {
+    super();
+    this.bullets = [];
+    this.shooter_x = 0;
+    this.shooter_y = 0;
+    this.shooting = false;
   }
 
+  update() {
+    super.update();
+  }
+
+  limitchk() {
+    super.limitchk();
+  }
+  
+  draw() {
+    super.draw();
+  }
+
+  hit() {
+    super.hit();
+  }
+
+  shoot() {
+//    console.log("shooter shoot!!");
+    this.shooting = true;
+//    return this.bullets.push(new Bullet(this.shooter_x = shooter_x, this.shooter_y = shooter_y));
+  }
+}
+
+class Bullet extends Sprite {
+  constructor(shooter_x, shooter_y) {
+    super();
+    this.sprite_x = shooter_x;
+    this.sprite_y = shooter_y;
+    this.isFriend = false;
+//    console.log("bullet new!!");
+//    console.log(this.sprite_x);
+//    console.log(this.sprite_y);
+  }
+
+  update() {
+    super.update();
+  }
+
+  limitchk() {
+    super.limitchk();
+  }
+  
+  draw() {
+    super.draw();
+//    circle(this.sprite_x, this.sprite_y, 5);
+//    console.log("shoot!!");
+  }
+
+  hit() {
+    super.hit();
+  }
+}
+
+class BulletFreindly extends Bullet {
+  constructor(shooter_x, shooter_y) {
+    super(shooter_x, shooter_y);
+    this.isFriend = true;
+    this.xspd = 0;
+    this.yspd = -6;
+    this.sprite_R = 192;
+    this.sprite_G = 168;
+    this.sprite_B = 1;
+//    console.log("bullet new!!");
+//    console.log(this.sprite_x);
+//    console.log(this.sprite_y);
+  }
+
+  update() {
+    super.update();
+  }
+
+  limitchk() {
+    super.limitchk();
+  }
+  
+  draw() {
+    super.draw();
+//    console.log(this.sprite_x);
+//    console.log(this.sprite_y);
+    circle(this.sprite_x, this.sprite_y, 20);
+//    console.log("jikishoot!!");
+  }
+
+  hit() {
+    super.hit();
+  }
 }
 
 class Sakura extends Sprite {
   constructor() {
     super();
-    this.xspd = random(0,2);
-    this.yspd = random(0.1,2);
+    this.xspd = random(0, 1);
+    this.yspd = random(0.1, 1);
     this.sprite_x = random(frameXfrom, (frameXfrom + frameXto - 3) / 2);
     this.sprite_y = random(frameYfrom, (frameYfrom + frameYto - 3) / 2);
     this.sprite_R = random(224,255);
@@ -208,13 +329,13 @@ class Sakura extends Sprite {
 
   swing() {
     if(this.age % 120 === 0) {
-      this.xspd = random(0,2);
-      this.yspd = random(0.1,2);
+      this.xspd = random(0, 1) - 0.5;
+      this.yspd = random(0.1, 1);
     }
   }
 }
 
-class Jiki extends Sprite {
+class Jiki extends Shooter {
   constructor() {
     super();
     this.xspd = 3;
@@ -249,6 +370,10 @@ class Jiki extends Sprite {
         this.sprite_y += this.yspd;
       }
     }
+    if (keyIsDown(90)) {
+      this.shoot();
+//      console.log(this.bullets[0]);
+    }
   }
 
   limitchk() {
@@ -265,4 +390,14 @@ class Jiki extends Sprite {
 
   hit() {
   }
+
+  shoot() {
+    super.shoot();
+//    console.log("jiki shoot!!");
+//    return super.shoot(this.sprite_x, this.sprite_y);
+  }
+
+//  getbullets() {
+//    return this.bullets;
+//  }
 }
