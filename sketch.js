@@ -4,12 +4,15 @@ let [canvasx, canvasy] = [600, 700];
 let [frameXfrom, frameYfrom, frameXto, frameYto] = [30, 30, 380, 640];
 let [textAx, textAy, textSizeA] = [430, 80, 32];
 let [textBx, textBy, textSizeB] = [440, 160, 24];
+let [textCx, textCy, textSizeC] = [540, 690, 12];
 let stgTitle = "* S T G *"
 let dice = 0;
+let fr = 0;
 let game;
 
 function setup() {
   createCanvas(canvasx, canvasy);
+  fr = frameRate();
   game = new Game();
 }
 
@@ -26,6 +29,9 @@ class Game {
 
   update() {
     this.age++;
+    if (this.age % 60 === 0) {
+      fr = Math.floor(frameRate());
+    }
   }
 
   draw() {
@@ -158,6 +164,12 @@ function textinfo() {
   fill(255);
   textAlign(LEFT);
   text("sakuras : " + game.getsakuraslength(), textBx, textBy);
+
+  textSize(textSizeC);
+  textFont("Comic Sans MS");
+  fill(255);
+  textAlign(LEFT);
+  text("FPS : " + fr, textCx, textCy);
 }
 
 function diceroll() {
