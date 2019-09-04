@@ -99,9 +99,10 @@ class Game {
       for (var i = 0; i < this.bullets.length; i++) {
         this.bullets[i].update();
         this.bullets[i].limitchk();
-        this.bullets[i].draw();
-        if (this.bullets[i].hitflg) {
+        if (this.bullets[i].isFrameout) {
           this.bullets.splice(i, 1);
+        } else {
+          this.bullets[i].draw();
         }
       }
     }
@@ -109,9 +110,17 @@ class Game {
     for (var i = 0; i < this.sakuras.length; i++) {
       this.sakuras[i].update();
       this.sakuras[i].limitchk();
-      this.sakuras[i].draw();
-      if (this.sakuras[i].hitflg) {
+
+      if (0 < this.bullets.length) {
+        for (var k = 0; k < this.bullets.length; k++) {
+          this.sakuras[i].collisionchk(this.bullets[k].sprite_x, this.bullets[k].sprite_y, this.bullets[k].killingrange);
+``      }
+      }
+
+      if (this.sakuras[i].isFrameout || this.sakuras[i].hitflg) {
         this.sakuras.splice(i, 1);
+``      } else {
+        this.sakuras[i].draw();
       }
     }
     diceroll()
@@ -187,7 +196,11 @@ class Sprite {
     this.sprite_R = 0;
     this.sprite_G = 0;
     this.sprite_B = 0;
+    this.isFrameout = false;
+    this.dist = 0;
+    this.killingrange = 0;
     this.hitflg = false;
+    this.isFriend = false;
     this.age = 0
   }
 
@@ -198,12 +211,24 @@ class Sprite {
   }
 
   limitchk() {
-    if (this.sprite_x < frameXfrom || (frameXfrom + frameXto) < this.sprite_x) {this.hit()}
-    if (this.sprite_y < frameYfrom || (frameYfrom + frameYto) < this.sprite_y) {this.hit()}
+    if (this.sprite_x < frameXfrom || (frameXfrom + frameXto) < this.sprite_x) {this.frameout()}
+    if (this.sprite_y < frameYfrom || (frameYfrom + frameYto) < this.sprite_y) {this.frameout()}
   }
   
   draw() {
     fill(this.sprite_R, this.sprite_G, this.sprite_B);
+  }
+
+  frameout() {
+    this.isFrameout = true;
+  }
+
+  collisionchk(opponent_x, opponent_y, opponent_killingrange) {
+    this.dist = dist(this.sprite_x, this.sprite_y, opponent_x, opponent_y)
+    if (this.dist <= this.killingrange + opponent_killingrange) {
+      this.hit();
+      return;
+    }
   }
 
   hit() {
@@ -247,7 +272,6 @@ class Bullet extends Sprite {
     super();
     this.sprite_x = shooter_x;
     this.sprite_y = shooter_y;
-    this.isFriend = false;
   }
 
   update() {
@@ -278,6 +302,7 @@ class BulletFreindly extends Bullet {
     this.sprite_B = 255;
     this.sprite_w = 10;
     this.sprite_h = 20;
+    this.killingrange = 4;
   }
 
   update() {
@@ -308,6 +333,7 @@ class Sakura extends Sprite {
     this.sprite_R = random(224,255);
     this.sprite_G = random(128,192);
     this.sprite_B = random(192,255);
+    this.killingrange = 4;
   }
 
   update() {
@@ -348,6 +374,7 @@ class Jiki extends Shooter {
     this.sprite_R = 255;
     this.sprite_G = 255;
     this.sprite_B = 255;
+    this.killingrange = 4;
   }
 
   update() {
