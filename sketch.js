@@ -7,6 +7,7 @@ let [textBx, textBy, textSizeB] = [440, 160, 24];
 let [textCx, textCy, textSizeC] = [540, 690, 12];
 let stgTitle = "* S T G *"
 let dice = 0;
+let [gradient_color1, gradient_color2] = [0, 0];
 let fr = 0;
 let game;
 
@@ -14,6 +15,7 @@ function setup() {
   createCanvas(canvasx, canvasy);
   fr = frameRate();
   game = new Game();
+  [gradient_color1, gradient_color2] = [color(150), color(0)];
 }
 
 function draw() {
@@ -76,9 +78,9 @@ class Game {
       this.stage1setup();
       this.needsetupflg = false;
     }
-    background(35,25,70);
-    stgframe();
-    textinfo();
+    background(35, 25, 70);
+    stgboard(this.age);
+    textinfo();  
 
     this.jiki.update();
     this.jiki.limitchk();
@@ -114,14 +116,16 @@ class Game {
       if (0 < this.bullets.length) {
         for (var k = 0; k < this.bullets.length; k++) {
           this.sakuras[i].collisionchk(this.bullets[k].sprite_x, this.bullets[k].sprite_y, this.bullets[k].killingrange);
-``      }
+        }
       }
 
       if (this.sakuras[i].isFrameout || this.sakuras[i].hitflg) {
         this.sakuras.splice(i, 1);
-``      } else {
+      } else {
         this.sakuras[i].draw();
       }
+
+      stgframe(this.age);
     }
     diceroll()
     if (dice === 6) {
@@ -130,7 +134,7 @@ class Game {
         this.sakuras.push(new Sakura());
       }
     }
-    if(this.age % 3600 === 0) {
+    if (this.age % 3600 === 0) {
       for (var i = 0; i < 50; i++) {
         this.sakuras.push(new Sakura());
       }
@@ -145,7 +149,7 @@ class Game {
   stage1setup() {
     this.jiki = new Jiki();
     this.bullets = [];
-    this.sakuras = new Array(Math.floor(random(4,20)));
+    this.sakuras = new Array(Math.floor(random(4, 20)));
     for (var i = 0; i < this.sakuras.length; i++) {
       this.sakuras[i] = new Sakura();
     }
@@ -156,9 +160,39 @@ class Game {
   }
 }
 
-function stgframe() {
-  fill(0);
-  rect(frameXfrom, frameYfrom, frameXto, frameYto);
+function stgboard(gameage) {
+  setGradient_Y(frameXfrom, frameYfrom, frameXto, frameYto, gradient_color1, gradient_color2);
+  noStroke();
+}
+
+function stgframe(gameage) {
+//  noStroke();
+//  fill(35, 25, 70, 200);
+//  rect(0, 0, frameXfrom, canvasy);  
+//
+//  noStroke();
+//  fill(35, 25, 70, 200);
+//  rect((frameXfrom + frameXto), 0, frameXfrom, canvasy);  
+//
+//  noStroke();
+//  fill(15, 5, 50, 200);
+//  rect(0, 0, canvasx, frameYfrom);
+//
+//  noStroke();
+//  fill(55, 45, 90, 200);
+//  rect(0, (frameYfrom + frameYto), canvasx, canvasy);  
+}
+
+function setGradient_Y(x, y, w, h, c1, c2) {
+  noFill();
+  // Top to bottom gradient
+  for (let i = y; i <= y + h; i=i+10) {
+    let inter = map(i, y, y + h, 0, 1);
+    let c = lerpColor(c1, c2, inter);
+    strokeWeight(10);
+    stroke(c);
+    line(x, i, x + w, i);
+  }
 }
 
 function textinfo() {
@@ -201,6 +235,7 @@ class Sprite {
     this.killingrange = 0;
     this.hitflg = false;
     this.isFriend = false;
+    this.isVisible = false;
     this.age = 0
   }
 
@@ -211,10 +246,10 @@ class Sprite {
   }
 
   limitchk() {
-    if (this.sprite_x < frameXfrom || (frameXfrom + frameXto) < this.sprite_x) {this.frameout()}
-    if (this.sprite_y < frameYfrom || (frameYfrom + frameYto) < this.sprite_y) {this.frameout()}
+    if (this.sprite_x < frameXfrom || (frameXfrom + frameXto) < this.sprite_x) { this.frameout() }
+    if (this.sprite_y < frameYfrom || (frameYfrom + frameYto) < this.sprite_y) { this.frameout() }
   }
-  
+
   draw() {
     fill(this.sprite_R, this.sprite_G, this.sprite_B);
   }
@@ -233,6 +268,9 @@ class Sprite {
 
   hit() {
     this.hitflg = true;
+  }
+
+  sparkle() {
   }
 }
 
@@ -253,7 +291,7 @@ class Shooter extends Sprite {
   limitchk() {
     super.limitchk();
   }
-  
+
   draw() {
     super.draw();
   }
@@ -281,7 +319,7 @@ class Bullet extends Sprite {
   limitchk() {
     super.limitchk();
   }
-  
+
   draw() {
     super.draw();
   }
@@ -303,6 +341,7 @@ class BulletFreindly extends Bullet {
     this.sprite_w = 10;
     this.sprite_h = 20;
     this.killingrange = 4;
+    this.isVisible = true;
   }
 
   update() {
@@ -312,7 +351,7 @@ class BulletFreindly extends Bullet {
   limitchk() {
     super.limitchk();
   }
-  
+
   draw() {
     super.draw();
     ellipse(this.sprite_x, this.sprite_y, this.sprite_w, this.sprite_h);
@@ -330,10 +369,11 @@ class Sakura extends Sprite {
     this.yspd = random(0.1, 1);
     this.sprite_x = random(frameXfrom, (frameXfrom + frameXto - 3) / 2);
     this.sprite_y = random(frameYfrom, (frameYfrom + frameYto - 3) / 2);
-    this.sprite_R = random(224,255);
-    this.sprite_G = random(128,192);
-    this.sprite_B = random(192,255);
+    this.sprite_R = random(224, 255);
+    this.sprite_G = random(128, 192);
+    this.sprite_B = random(192, 255);
     this.killingrange = 4;
+    this.isVisible = true;
   }
 
   update() {
@@ -344,10 +384,12 @@ class Sakura extends Sprite {
   limitchk() {
     super.limitchk();
   }
-  
+
   draw() {
-    super.draw();
-    circle(this.sprite_x, this.sprite_y, 10);
+    if (this.isVisible) {
+      super.draw();
+      circle(this.sprite_x, this.sprite_y, 10);
+    }
   }
 
   hit() {
@@ -355,7 +397,7 @@ class Sakura extends Sprite {
   }
 
   swing() {
-    if(this.age % 120 === 0) {
+    if (this.age % 120 === 0) {
       this.xspd = random(0, 1) - 0.5;
       this.yspd = random(0.1, 1);
     }
@@ -375,6 +417,7 @@ class Jiki extends Shooter {
     this.sprite_G = 255;
     this.sprite_B = 255;
     this.killingrange = 4;
+    this.isVisible = true;
   }
 
   update() {
@@ -404,21 +447,21 @@ class Jiki extends Shooter {
   }
 
   limitchk() {
-    if ((frameXfrom + frameXto) <= this.sprite_x + this.sprite_w) {this.sprite_x = (frameXfrom + frameXto) - this.sprite_w}
-    if (this.sprite_x <= frameXfrom) {this.sprite_x = frameXfrom}
-    if ((frameYfrom + frameYto) <= this.sprite_y + this.sprite_h) {this.sprite_y = (frameYfrom + frameYto) - this.sprite_h}
-    if (this.sprite_y <= frameYfrom) {this.sprite_y = frameYfrom}
+    if ((frameXfrom + frameXto) <= this.sprite_x + this.sprite_w) { this.sprite_x = (frameXfrom + frameXto) - this.sprite_w }
+    if (this.sprite_x <= frameXfrom) { this.sprite_x = frameXfrom }
+    if ((frameYfrom + frameYto) <= this.sprite_y + this.sprite_h) { this.sprite_y = (frameYfrom + frameYto) - this.sprite_h }
+    if (this.sprite_y <= frameYfrom) { this.sprite_y = frameYfrom }
   }
-  
+
   draw() {
     super.draw();
-    rect(this.sprite_x, this.sprite_y, this.sprite_w ,this.sprite_h);
+    rect(this.sprite_x, this.sprite_y, this.sprite_w, this.sprite_h);
   }
 
   hit() {
   }
 
   shoot() {
-      super.shoot();
+    super.shoot();
   }
 }
