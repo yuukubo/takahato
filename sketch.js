@@ -148,6 +148,7 @@ class Game {
 
   stage1setup() {
     this.jiki = new Jiki();
+    this.jiki.SuperarmorTimer = 240;
     this.bullets = [];
     this.sakuras = new Array(Math.floor(random(4, 20)));
     for (var i = 0; i < this.sakuras.length; i++) {
@@ -230,12 +231,15 @@ class Sprite {
     this.sprite_R = 0;
     this.sprite_G = 0;
     this.sprite_B = 0;
+    this.sprite_Alpha = 255;
     this.isFrameout = false;
     this.dist = 0;
     this.killingrange = 0;
     this.hitflg = false;
     this.isFriend = false;
     this.isVisible = false;
+    this.isSuperarmor = false;
+    this.SuperarmorTimer = 0;
     this.age = 0
   }
 
@@ -251,7 +255,7 @@ class Sprite {
   }
 
   draw() {
-    fill(this.sprite_R, this.sprite_G, this.sprite_B);
+    fill(this.sprite_R, this.sprite_G, this.sprite_B, this.sprite_Alpha);
   }
 
   frameout() {
@@ -407,17 +411,22 @@ class Sakura extends Sprite {
 class Jiki extends Shooter {
   constructor() {
     super();
-    this.xspd = 3;
-    this.yspd = 3;
+    this.nomal_xspd = 3;
+    this.nomal_yspd = 3;
+    this.slow_xspd = this.nomal_xspd / 2;
+    this.slow_yspd = this.nomal_yspd / 2;
+    this.xspd = this.nomal_xspd;
+    this.yspd = this.nomal_yspd;
     this.sprite_x = (frameXfrom + frameXto) / 2;
     this.sprite_y = (frameYfrom + frameYto) * 3 / 4;
     this.sprite_w = 10;
     this.sprite_h = 10;
     this.sprite_R = 255;
-    this.sprite_G = 255;
-    this.sprite_B = 255;
+    this.sprite_G = 100;
+    this.sprite_B = 200;
     this.killingrange = 4;
     this.isVisible = true;
+    this.isSuperarmor = true;
   }
 
   update() {
@@ -441,8 +450,25 @@ class Jiki extends Shooter {
         this.sprite_y += this.yspd;
       }
     }
+    if (keyIsDown(SHIFT)) {
+      this.xspd = this.slow_xspd;
+      this.yspd = this.slow_yspd;
+    } else {
+      this.xspd = this.nomal_xspd;
+      this.yspd = this.nomal_yspd;
+    }
     if (keyIsDown(90)) {
-      this.shoot();
+      if (!this.isSuperarmor) {
+        this.shoot();
+      }
+    }
+    if (0 < this.SuperarmorTimer) {
+      this.SuperarmorTimer--;
+      this.sprite_Alpha = 80;
+    }
+    if (0 === this.SuperarmorTimer) {
+      this.isSuperarmor = false;
+      this.sprite_Alpha = 255;
     }
   }
 
