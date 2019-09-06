@@ -103,8 +103,10 @@ class Game {
         this.bullets[i].limitchk();
         if (this.bullets[i].isFrameout) {
           this.bullets.splice(i, 1);
+        } else if (!this.bullets[i].isArmorpiercing && this.bullets[i].hitflg) {
+          this.bullets.splice(i, 1);
         } else {
-          this.bullets[i].draw();
+        this.bullets[i].draw();
         }
       }
     }
@@ -115,7 +117,10 @@ class Game {
 
       if (0 < this.bullets.length) {
         for (var k = 0; k < this.bullets.length; k++) {
-          this.sakuras[i].collisionchk(this.bullets[k].sprite_x, this.bullets[k].sprite_y, this.bullets[k].killingrange);
+          this.bullets[k].hitflg = this.sakuras[i].collisionchk(this.bullets[k].sprite_x, this.bullets[k].sprite_y, this.bullets[k].killingrange);
+          if (this.bullets[k].hitflg) {
+            return;
+          }
         }
       }
 
@@ -266,7 +271,9 @@ class Sprite {
     this.dist = dist(this.sprite_x, this.sprite_y, opponent_x, opponent_y)
     if (this.dist <= this.killingrange + opponent_killingrange) {
       this.hit();
-      return;
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -314,6 +321,7 @@ class Bullet extends Sprite {
     super();
     this.sprite_x = shooter_x;
     this.sprite_y = shooter_y;
+    this.isArmorpiercing = false;
   }
 
   update() {
