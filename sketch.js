@@ -123,7 +123,11 @@ class Game {
           }
         }
       }
-
+      if (!this.jiki.isSuperarmor) {
+        if (this.sakuras[i].collisionchk(this.jiki.sprite_x, this.jiki.sprite_y, this.jiki.killingrange)) {
+          this.jiki.hit();
+        }
+      }
       if (this.sakuras[i].isFrameout || this.sakuras[i].hitflg) {
         this.sakuras.splice(i, 1);
       } else {
@@ -423,6 +427,8 @@ class Jiki extends Shooter {
     this.nomal_yspd = 3;
     this.slow_xspd = this.nomal_xspd / 2;
     this.slow_yspd = this.nomal_yspd / 2;
+    this.setup_xspd = this.slow_xspd / 2;
+    this.setup_yspd = this.slow_yspd / 2;
     this.xspd = this.nomal_xspd;
     this.yspd = this.nomal_yspd;
     this.sprite_x = (frameXfrom + frameXto) / 2;
@@ -435,47 +441,65 @@ class Jiki extends Shooter {
     this.killingrange = 4;
     this.isVisible = true;
     this.isSuperarmor = true;
+    this.isPichuuun = false;
   }
 
   update() {
-    if (keyIsDown(LEFT_ARROW)) {
-      if (frameXfrom < this.sprite_x) {
-        this.sprite_x -= this.xspd;
+    if (this.hitflg) {
+      this.isSuperarmor = true;
+      this.SuperarmorTimer = 240;
+      this.isPichuuun = true;
+      this.sprite_x = (frameXfrom + frameXto) / 2;
+      this.sprite_y = (frameYfrom + frameYto - this.sprite_h);
+      this.hitflg = false;
+    }
+    if (this.isSuperarmor && this.isPichuuun && (60 < this.SuperarmorTimer)) {
+      this.sprite_y -= this.setup_yspd;
+    } else if (!this.isPichuuun) {
+      if (keyIsDown(LEFT_ARROW)) {
+        if (frameXfrom < this.sprite_x) {
+          this.sprite_x -= this.xspd;
+        }
+      }
+      if (keyIsDown(RIGHT_ARROW)) {
+        if (this.sprite_x < (frameXfrom + frameXto)) {
+          this.sprite_x += this.xspd;
+        }
+      }
+      if (keyIsDown(UP_ARROW)) {
+        if (frameYfrom < this.sprite_y) {
+          this.sprite_y -= this.yspd;
+        }
+      }
+      if (keyIsDown(DOWN_ARROW)) {
+        if (this.sprite_y < (frameYfrom + frameYto)) {
+          this.sprite_y += this.yspd;
+        }
+      }
+      if (keyIsDown(SHIFT)) {
+        this.xspd = this.slow_xspd;
+        this.yspd = this.slow_yspd;
+      } else {
+        this.xspd = this.nomal_xspd;
+        this.yspd = this.nomal_yspd;
+      }
+      if (keyIsDown(90)) {
+        if (!this.isSuperarmor) {
+          this.shoot();
+        }
       }
     }
-    if (keyIsDown(RIGHT_ARROW)) {
-      if (this.sprite_x < (frameXfrom + frameXto)) {
-        this.sprite_x += this.xspd;
-      }
-    }
-    if (keyIsDown(UP_ARROW)) {
-      if (frameYfrom < this.sprite_y) {
-        this.sprite_y -= this.yspd;
-      }
-    }
-    if (keyIsDown(DOWN_ARROW)) {
-      if (this.sprite_y < (frameYfrom + frameYto)) {
-        this.sprite_y += this.yspd;
-      }
-    }
-    if (keyIsDown(SHIFT)) {
-      this.xspd = this.slow_xspd;
-      this.yspd = this.slow_yspd;
-    } else {
-      this.xspd = this.nomal_xspd;
-      this.yspd = this.nomal_yspd;
-    }
-    if (keyIsDown(90)) {
-      if (!this.isSuperarmor) {
-        this.shoot();
-      }
-    }
+
     if (0 < this.SuperarmorTimer) {
       this.SuperarmorTimer--;
       this.sprite_Alpha = 80;
     }
+    if (this.SuperarmorTimer < 60) {
+      this.isPichuuun = false;
+    }
     if (0 === this.SuperarmorTimer) {
       this.isSuperarmor = false;
+      this.isPichuuun = false;
       this.sprite_Alpha = 255;
     }
   }
@@ -493,6 +517,9 @@ class Jiki extends Shooter {
   }
 
   hit() {
+    super.hit();
+    this.isSuperarmor = true;
+    this.isPichuuun = true;
   }
 
   shoot() {
