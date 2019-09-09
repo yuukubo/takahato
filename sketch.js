@@ -174,7 +174,7 @@ class Game {
         }
       }
       if (!this.jiki.isSuperarmor) {
-        if (this.sakuras[i].collisionchk(this.jiki.sprite_x, this.jiki.sprite_y, this.jiki.killingrange)) {
+        if (this.sakuras[i].collisionchk(this.jiki.sprite_x_core, this.jiki.sprite_y_core, this.jiki.killingrange)) {
           this.jiki.hit();
         }
       }
@@ -333,6 +333,8 @@ class Sprite {
     this.isSuperarmor = false;
     this.SuperarmorTimer = 0;
     this.age = 0
+    this.sprite_x_core = this.sprite_x + (this.sprite_w / 2);
+    this.sprite_y_core = this.sprite_y + (this.sprite_h / 2);
   }
 
   update() {
@@ -347,6 +349,7 @@ class Sprite {
   }
 
   draw() {
+    noStroke();
     fill(this.sprite_R, this.sprite_G, this.sprite_B, this.sprite_Alpha);
   }
 
@@ -523,14 +526,17 @@ class Jiki extends Shooter {
     this.sprite_R = 255;
     this.sprite_G = 100;
     this.sprite_B = 200;
-    this.killingrange = 4;
+    this.killingrange = 2;
     this.isVisible = true;
     this.isSuperarmor = true;
     this.isPichuuun = false;
     this.zanki = 3;
+    this.isMagiccircle = false;
   }
 
   update() {
+    this.sprite_x_core = this.sprite_x + (this.sprite_w / 2);
+    this.sprite_y_core = this.sprite_y + (this.sprite_h / 2);
     if (this.hitflg) {
       this.isSuperarmor = true;
       this.SuperarmorTimer = 240;
@@ -566,9 +572,11 @@ class Jiki extends Shooter {
       if (keyIsDown(SHIFT)) {
         this.xspd = this.slow_xspd;
         this.yspd = this.slow_yspd;
+        this.isMagiccircle = true;
       } else {
         this.xspd = this.nomal_xspd;
         this.yspd = this.nomal_yspd;
+        this.isMagiccircle = false;
       }
       if (keyIsDown(90)) {
         if (!this.isSuperarmor) {
@@ -601,6 +609,13 @@ class Jiki extends Shooter {
   draw() {
     super.draw();
     rect(this.sprite_x, this.sprite_y, this.sprite_w, this.sprite_h);
+    fill((this.sprite_R / 4), (this.sprite_G / 4), (this.sprite_B / 4), (this.sprite_Alpha / 2));
+    circle(this.sprite_x_core, this.sprite_y_core, this.killingrange);
+    if (this.isMagiccircle) {
+      strokeWeight(1);
+      stroke((this.sprite_R / 4), (this.sprite_G / 4), (this.sprite_B / 4), (this.sprite_Alpha / 2));
+      circle(this.sprite_x_core, this.sprite_y_core, (this.killingrange * 20));
+    }
   }
 
   hit() {
