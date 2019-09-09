@@ -5,7 +5,8 @@ let [frameXfrom, frameYfrom, frameXto, frameYto] = [30, 30, 430, 640];
 let [textAx, textAy, textSizeA] = [480, 80, 32];
 let [textBx, textBy, textSizeB] = [490, 160, 24];
 let [textB2x, textB2y, textSizeB2] = [490, 200, 24];
-let [textCx, textCy, textSizeC] = [590, 690, 12];
+let [textB3x, textB3y, textSizeB3] = [490, 240, 24];
+let [textCx, textCy, textSizeC] = [640, 690, 12];
 let stgTitle = "* S T G *"
 let dice = 0;
 let [gradient_color1, gradient_color2] = [0, 0];
@@ -27,9 +28,12 @@ class Game {
   constructor() {
     this.gamescenenow = "title";
     this.age = 0;
+    this.stage1age = 0;
     this.needsetupflg = true;
     this.totalScore = 0;
     this.stage1score = 0;
+    this.titlealpha = 0;
+    this.endingalpha = 0;
   }
 
   update() {
@@ -51,28 +55,66 @@ class Game {
       this.scenestage1();
       this.update();
     }
+    if (this.gamescenenow === "gameover") {
+      this.gameover();
+      this.update();
+    }
   }
 
   scenetitle() {
     background(0);
-    this.titlelogo();
-    if (keyIsDown(90)) {
-      this.gamescenenow = "stage1";
+    if (this.titlealpha < 255) {
+      this.titlealpha++;
     }
+    this.titlelogo();
+    if ((this.titlealpha === 255) && keyIsDown(90)) {
+      this.gamescenenow = "stage1";
+      this.titlealpha = 0;
+      }
   }
 
   titlelogo() {
     textSize(64);
     textFont("Comic Sans MS");
-    fill(255);
+    fill(255, this.titlealpha);
     textAlign(CENTER);
     text(stgTitle, canvasx / 2, canvasy / 3);
 
-    textSize(16);
+    if (this.titlealpha === 255) {
+      textSize(16);
+      textFont("Comic Sans MS");
+      fill(255);
+      textAlign(LEFT);
+      text("press Z to start!!", canvasx / 2, canvasy * 2 / 3);
+    }
+  }
+
+  gameover() {
+    background(20);
+    if (this.endingalpha < 255) {
+      this.endingalpha++;
+    }
+    this.ending();
+    if ((this.endingalpha === 255) && keyIsDown(90)) {
+      this.gamescenenow = "title";
+      this.endingalpha = 0;
+      }
+  }
+
+  ending() {
+    textSize(64);
     textFont("Comic Sans MS");
-    fill(255);
-    textAlign(LEFT);
-    text("press Z to start!!", canvasx / 2, canvasy * 2 / 3);
+    fill(255, this.endingalpha);
+    textAlign(CENTER);
+    text("Game Over", canvasx / 2, canvasy / 3);
+
+    if (this.endingalpha === 255) {
+      textSize(16);
+      textFont("Comic Sans MS");
+      fill(255, this.endingalpha);
+      textAlign(LEFT);
+      text("press Z to New game!!", canvasx / 2, canvasy * 2 / 3);
+    }
   }
 
   scenestage1() {
@@ -81,9 +123,14 @@ class Game {
       this.stage1setup();
       this.needsetupflg = false;
     }
+    this.stage1age++;
     background(35, 25, 70);
-    stgboard(this.age);
-    textinfo();  
+    stgboard(this.stage1age);
+    textinfo();
+
+    if (this.jiki.zanki < 0) {
+      this.stage1cleanup();
+    }
 
     this.jiki.update();
     this.jiki.limitchk();
@@ -140,7 +187,7 @@ class Game {
         this.sakuras[i].draw();
       }
 
-      stgframe(this.age);
+      stgframe(this.stage1age);
     }
     diceroll()
     if (dice === 6) {
@@ -149,7 +196,7 @@ class Game {
         this.sakuras.push(new Sakura());
       }
     }
-    if (this.age % 3600 === 0) {
+    if (this.stage1age % 3600 === 0) {
       for (var i = 0; i < 50; i++) {
         this.sakuras.push(new Sakura());
       }
@@ -165,6 +212,7 @@ class Game {
     this.jiki = new Jiki();
     this.jiki.SuperarmorTimer = 240;
     this.jiki.score =+ this.totalScore;
+    this.jiki.zanki = 3;
     this.bullets = [];
     this.sakuras = new Array(Math.floor(random(4, 20)));
     for (var i = 0; i < this.sakuras.length; i++) {
@@ -172,11 +220,24 @@ class Game {
     }
   }
 
+  stage1cleanup() {
+    this.needsetupflg = true
+    this.jiki.SuperarmorTimer = 240;
+    this.stage1score = this.jiki.score;
+    this.jiki.score = 0;
+    this.bullets = [];
+    this.sakuras = [];
+    this.gamescenenow = "gameover";
+  }
+
   getsakuraslength() {
     return this.sakuras.length;
   }
   getjikiscore() {
     return this.jiki.score;
+  }
+  getjikizanki() {
+    return this.jiki.zanki;
   }
 }
 
@@ -233,6 +294,12 @@ function textinfo() {
   fill(255);
   textAlign(LEFT);
   text("scores : " + game.getjikiscore(), textB2x, textB2y);
+
+  textSize(textSizeB3);
+  textFont("Comic Sans MS");
+  fill(255);
+  textAlign(LEFT);
+  text("zanki : " + game.getjikizanki(), textB3x, textB3y);
 
   textSize(textSizeC);
   textFont("Comic Sans MS");
@@ -460,6 +527,7 @@ class Jiki extends Shooter {
     this.isVisible = true;
     this.isSuperarmor = true;
     this.isPichuuun = false;
+    this.zanki = 3;
   }
 
   update() {
@@ -469,6 +537,7 @@ class Jiki extends Shooter {
       this.isPichuuun = true;
       this.sprite_x = (frameXfrom + frameXto) / 2;
       this.sprite_y = (frameYfrom + frameYto - this.sprite_h);
+      this.zanki--;
       this.hitflg = false;
     }
     if (this.isSuperarmor && this.isPichuuun && (60 < this.SuperarmorTimer)) {
