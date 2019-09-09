@@ -1,10 +1,11 @@
 // stg
 
-let [canvasx, canvasy] = [600, 700];
-let [frameXfrom, frameYfrom, frameXto, frameYto] = [30, 30, 380, 640];
-let [textAx, textAy, textSizeA] = [430, 80, 32];
-let [textBx, textBy, textSizeB] = [440, 160, 24];
-let [textCx, textCy, textSizeC] = [540, 690, 12];
+let [canvasx, canvasy] = [700, 700];
+let [frameXfrom, frameYfrom, frameXto, frameYto] = [30, 30, 430, 640];
+let [textAx, textAy, textSizeA] = [480, 80, 32];
+let [textBx, textBy, textSizeB] = [490, 160, 24];
+let [textB2x, textB2y, textSizeB2] = [490, 200, 24];
+let [textCx, textCy, textSizeC] = [590, 690, 12];
 let stgTitle = "* S T G *"
 let dice = 0;
 let [gradient_color1, gradient_color2] = [0, 0];
@@ -27,6 +28,8 @@ class Game {
     this.gamescenenow = "title";
     this.age = 0;
     this.needsetupflg = true;
+    this.totalScore = 0;
+    this.stage1score = 0;
   }
 
   update() {
@@ -129,6 +132,9 @@ class Game {
         }
       }
       if (this.sakuras[i].isFrameout || this.sakuras[i].hitflg) {
+        if (this.sakuras[i].hitflg) {
+          this.jiki.score += this.sakuras[i].reward;
+        }
         this.sakuras.splice(i, 1);
       } else {
         this.sakuras[i].draw();
@@ -158,6 +164,7 @@ class Game {
   stage1setup() {
     this.jiki = new Jiki();
     this.jiki.SuperarmorTimer = 240;
+    this.jiki.score =+ this.totalScore;
     this.bullets = [];
     this.sakuras = new Array(Math.floor(random(4, 20)));
     for (var i = 0; i < this.sakuras.length; i++) {
@@ -167,6 +174,9 @@ class Game {
 
   getsakuraslength() {
     return this.sakuras.length;
+  }
+  getjikiscore() {
+    return this.jiki.score;
   }
 }
 
@@ -217,6 +227,12 @@ function textinfo() {
   fill(255);
   textAlign(LEFT);
   text("sakuras : " + game.getsakuraslength(), textBx, textBy);
+
+  textSize(textSizeB2);
+  textFont("Comic Sans MS");
+  fill(255);
+  textAlign(LEFT);
+  text("scores : " + game.getjikiscore(), textB2x, textB2y);
 
   textSize(textSizeC);
   textFont("Comic Sans MS");
@@ -297,6 +313,7 @@ class Shooter extends Sprite {
     this.shooter_y = 0;
     this.shooting = false;
     this.cooltime = 0;
+    this.score = 0;
   }
 
   update() {
@@ -390,6 +407,7 @@ class Sakura extends Sprite {
     this.sprite_B = random(192, 255);
     this.killingrange = 4;
     this.isVisible = true;
+    this.reward = 100;
   }
 
   update() {
