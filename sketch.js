@@ -70,7 +70,7 @@ class Game {
     if ((this.titlealpha === 255) && keyIsDown(90)) {
       this.gamescenenow = "stage1";
       this.titlealpha = 0;
-      }
+    }
   }
 
   titlelogo() {
@@ -98,7 +98,7 @@ class Game {
     if ((this.endingalpha === 255) && keyIsDown(90)) {
       this.gamescenenow = "title";
       this.endingalpha = 0;
-      }
+    }
   }
 
   ending() {
@@ -156,7 +156,7 @@ class Game {
         } else if (!this.bullets[i].isArmorpiercing && this.bullets[i].hitflg) {
           this.bullets.splice(i, 1);
         } else {
-        this.bullets[i].draw();
+          this.bullets[i].draw();
         }
       }
     }
@@ -186,10 +186,8 @@ class Game {
       } else {
         this.sakuras[i].draw();
       }
-
-      stgframe(this.stage1age);
     }
-    diceroll()
+    diceroll();
     if (dice === 6) {
       diceroll();
       if (dice === 6) {
@@ -206,14 +204,49 @@ class Game {
         this.sakuras.pop();
       }
     }
+
+    if (600 <= this.stage1age && this.stage1age <= 960) {
+      if ((this.stage1age % 30) === 0) {
+        this.fairy01s.push(new Fairy01());
+      }
+    }
+    for (var i = 0; i < this.fairy01s.length; i++) {
+      this.fairy01s[i].update();
+      this.fairy01s[i].limitchk();
+
+      if (0 < this.bullets.length) {
+        for (var k = 0; k < this.bullets.length; k++) {
+          this.bullets[k].hitflg = this.fairy01s[i].collisionchk(this.bullets[k].sprite_x, this.bullets[k].sprite_y, this.bullets[k].killingrange);
+          if (this.bullets[k].hitflg) {
+            return;
+          }
+        }
+      }
+      if (!this.jiki.isSuperarmor) {
+        if (this.fairy01s[i].collisionchk(this.jiki.sprite_x_core, this.jiki.sprite_y_core, this.jiki.killingrange)) {
+          this.jiki.hit();
+        }
+      }
+      if (this.fairy01s[i].isFrameout || this.fairy01s[i].hitflg) {
+        if (this.fairy01s[i].hitflg) {
+          this.jiki.score += this.fairy01s[i].reward;
+        }
+        this.fairy01s.splice(i, 1);
+      } else {
+        this.fairy01s[i].draw();
+      }
+    }
+
+    stgframe(this.stage1age);
   }
 
   stage1setup() {
     this.jiki = new Jiki();
     this.jiki.SuperarmorTimer = 240;
-    this.jiki.score =+ this.totalScore;
+    this.jiki.score = + this.totalScore;
     this.jiki.zanki = 3;
     this.bullets = [];
+    this.fairy01s = [];
     this.sakuras = new Array(Math.floor(random(4, 20)));
     for (var i = 0; i < this.sakuras.length; i++) {
       this.sakuras[i] = new Sakura();
@@ -221,7 +254,8 @@ class Game {
   }
 
   stage1cleanup() {
-    this.needsetupflg = true
+    this.needsetupflg = true;
+    this.stage1age = 0;
     this.jiki.SuperarmorTimer = 240;
     this.stage1score = this.jiki.score;
     this.jiki.score = 0;
@@ -247,27 +281,27 @@ function stgboard(gameage) {
 }
 
 function stgframe(gameage) {
-//  noStroke();
-//  fill(35, 25, 70, 200);
-//  rect(0, 0, frameXfrom, canvasy);  
-//
-//  noStroke();
-//  fill(35, 25, 70, 200);
-//  rect((frameXfrom + frameXto), 0, frameXfrom, canvasy);  
-//
-//  noStroke();
-//  fill(15, 5, 50, 200);
-//  rect(0, 0, canvasx, frameYfrom);
-//
-//  noStroke();
-//  fill(55, 45, 90, 200);
-//  rect(0, (frameYfrom + frameYto), canvasx, canvasy);  
+  //  noStroke();
+  //  fill(35, 25, 70, 200);
+  //  rect(0, 0, frameXfrom, canvasy);  
+  //
+  //  noStroke();
+  //  fill(35, 25, 70, 200);
+  //  rect((frameXfrom + frameXto), 0, frameXfrom, canvasy);  
+  //
+  //  noStroke();
+  //  fill(15, 5, 50, 200);
+  //  rect(0, 0, canvasx, frameYfrom);
+  //
+  //  noStroke();
+  //  fill(55, 45, 90, 200);
+  //  rect(0, (frameYfrom + frameYto), canvasx, canvasy);  
 }
 
 function setGradient_Y(x, y, w, h, c1, c2) {
   noFill();
   // Top to bottom gradient
-  for (let i = y; i <= y + h; i=i+10) {
+  for (let i = y; i <= y + h; i = i + 10) {
     let inter = map(i, y, y + h, 0, 1);
     let c = lerpColor(c1, c2, inter);
     strokeWeight(10);
@@ -465,7 +499,31 @@ class BulletFreindly extends Bullet {
   }
 }
 
-class Sakura extends Sprite {
+class Enemy extends Shooter {
+  constructor() {
+    super();
+  }
+
+  update() {
+    super.update();
+  }
+
+  limitchk() {
+    super.limitchk();
+  }
+
+  draw() {
+    if (this.isVisible) {
+      super.draw();
+    }
+  }
+
+  hit() {
+    super.hit();
+  }
+}
+
+class Sakura extends Enemy {
   constructor() {
     super();
     this.xspd = random(0, 1);
@@ -505,6 +563,46 @@ class Sakura extends Sprite {
       this.xspd = random(0, 1) - 0.5;
       this.yspd = random(0.1, 1);
     }
+  }
+}
+
+class Fairy01 extends Enemy {
+  constructor() {
+    super();
+    this.xspd = 0;
+    this.yspd = 1;
+    this.sprite_x = ((frameXfrom + frameXto) / 2);
+    this.sprite_y = frameYfrom;
+    this.sprite_R = random(224, 255);
+    this.sprite_G = random(192, 224);
+    this.sprite_B = random(64, 96);
+    this.killingrange = 4;
+    this.isVisible = true;
+    this.reward = 2000;
+  }
+
+  update() {
+    super.update();
+    this.toleft();
+  }
+
+  limitchk() {
+    super.limitchk();
+  }
+
+  draw() {
+    if (this.isVisible) {
+      super.draw();
+      circle(this.sprite_x, this.sprite_y, 10);
+    }
+  }
+
+  hit() {
+    super.hit();
+  }
+
+  toleft() {
+    this.xspd -= 0.001;
   }
 }
 
