@@ -208,6 +208,15 @@ class Game {
         this.enemies[s][i].update();
         this.enemies[s][i].limitchk();
 
+        if (180 <= this.enemies[s][i].age && this.enemies[s][i].age <= 300 && (this.enemies[s][i].age % 60 === 0)) {
+          if (this.enemies[s][i] instanceof Fairy01) {
+            this.enemybullets.push(new miniBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+          }
+          if (this.enemies[s][i] instanceof Fairy02) {
+            this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+          }
+        }
+
         if (0 < this.bullets.length) {
           for (var k = 0; k < this.bullets.length; k++) {
             this.bullets[k].hitflg = this.enemies[s][i].collisionchk(this.bullets[k].sprite_x, this.bullets[k].sprite_y, this.bullets[k].killingrange);
@@ -216,9 +225,11 @@ class Game {
             }
           }
         }
-        if (!this.jiki.isSuperarmor) {
+        if (!this.jiki.hitflg && !this.jiki.isSuperarmor) {
           if (this.enemies[s][i].collisionchk(this.jiki.sprite_x_core, this.jiki.sprite_y_core, this.jiki.killingrange)) {
-            this.jiki.hit();
+            if (!this.jiki.isSuperarmor) {
+              this.jiki.hit();
+            }
           }
         }
         if (this.enemies[s][i].isFrameout || this.enemies[s][i].hitflg) {
@@ -228,6 +239,21 @@ class Game {
           this.enemies[s].splice(i, 1);
         } else {
           this.enemies[s][i].draw();
+        }
+      }
+    }
+
+    if (0 < this.enemybullets.length) {
+      for (var i = 0; i < this.enemybullets.length; i++) {
+        this.enemybullets[i].hitflg = this.jiki.collisionchk(this.enemybullets[i].sprite_x, this.enemybullets[i].sprite_y, this.enemybullets[i].killingrange);
+        this.enemybullets[i].update();
+        this.enemybullets[i].limitchk();
+        if (this.enemybullets[i].isFrameout) {
+          this.enemybullets.splice(i, 1);
+        } else if (!this.enemybullets[i].isArmorpiercing && this.enemybullets[i].hitflg) {
+          this.enemybullets.splice(i, 1);
+        } else {
+          this.enemybullets[i].draw();
         }
       }
     }
@@ -260,12 +286,15 @@ class Game {
     this.jiki.zanki = 3;
     this.bullets = [];
     this.fairy01s = [];
+    this.f01bullets = [];
     this.fairy02s = [];
+    this.f02bullets = [];
     this.sakuras = new Array(Math.floor(random(4, 20)));
     for (var i = 0; i < this.sakuras.length; i++) {
       this.sakuras[i] = new Sakura();
     }
     this.enemies = [this.fairy01s, this.fairy02s, this.sakuras];
+    this.enemybullets = [];
   }
 
   stage1cleanup() {
@@ -310,8 +339,8 @@ function stgframe(gameage) {
   //  rect(0, 0, canvasx, frameYfrom);
   //
   //  noStroke();
-  //  fill(55, 45, 90, 200);
-  //  rect(0, (frameYfrom + frameYto), canvasx, canvasy);  
+  //  fill(55, 45, 90);
+  //  rect(0, (frameYfrom + frameYto), (frameXfrom + frameXto), canvasy);  
 }
 
 function setGradient_Y(x, y, w, h, c1, c2) {
@@ -515,6 +544,75 @@ class BulletFreindly extends Bullet {
   }
 }
 
+class miniBulletofEnemy extends Bullet {
+  constructor(shooter_x, shooter_y) {
+    super(shooter_x, shooter_y);
+    this.isFriend = false;
+    this.xspd = 0;
+    this.yspd = 3;
+    this.sprite_R = 96;
+    this.sprite_G = 96;
+    this.sprite_B = 255;
+    this.sprite_w = 4;
+    this.sprite_h = 10;
+    this.killingrange = 2;
+    this.isVisible = true;
+  }
+
+  update() {
+    super.update();
+  }
+
+  limitchk() {
+    super.limitchk();
+  }
+
+  draw() {
+    super.draw();
+    ellipse(this.sprite_x, this.sprite_y, this.sprite_w, this.sprite_h);
+  }
+
+  hit() {
+    super.hit();
+  }
+}
+
+class bigBulletofEnemy extends Bullet {
+  constructor(shooter_x, shooter_y) {
+    super(shooter_x, shooter_y);
+    this.isFriend = false;
+    this.xspd = 0;
+    this.yspd = 3;
+    this.sprite_R = 255;
+    this.sprite_G = 1;
+    this.sprite_B = 51;
+    this.sprite_Alpha = 60;
+    this.sprite_w = 60;
+    this.sprite_h = 60;
+    this.killingrange = 10;
+    this.isVisible = true;
+  }
+
+  update() {
+    super.update();
+  }
+
+  limitchk() {
+    super.limitchk();
+  }
+
+  draw() {
+    super.draw();
+    ellipse(this.sprite_x, this.sprite_y, this.sprite_w, this.sprite_h);
+    fill(this.sprite_R / 2, this.sprite_G / 2, this.sprite_B / 2);
+    circle(this.sprite_x, this.sprite_y, this.killingrange);
+  }
+
+  hit() {
+    super.hit();
+  }
+}
+
 class Enemy extends Shooter {
   constructor() {
     super();
@@ -609,7 +707,8 @@ class Fairy01 extends Enemy {
   draw() {
     if (this.isVisible) {
       super.draw();
-      circle(this.sprite_x, this.sprite_y, 10);
+      ellipse(this.sprite_x, this.sprite_y, 5, 15);
+      ellipse(this.sprite_x, this.sprite_y, 15, 5);
     }
   }
 
@@ -649,7 +748,8 @@ class Fairy02 extends Enemy {
   draw() {
     if (this.isVisible) {
       super.draw();
-      circle(this.sprite_x, this.sprite_y, 10);
+      ellipse(this.sprite_x, this.sprite_y, 5, 20);
+      ellipse(this.sprite_x, this.sprite_y, 20, 5);
     }
   }
 
