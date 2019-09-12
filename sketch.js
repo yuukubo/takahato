@@ -210,10 +210,18 @@ class Game {
 
         if (180 <= this.enemies[s][i].age && this.enemies[s][i].age <= 300 && (this.enemies[s][i].age % 60 === 0)) {
           if (this.enemies[s][i] instanceof Fairy01) {
-            this.enemybullets.push(new miniBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+            for (var p = 1; p <= 6; p++) {
+              this.enemybullets.push(new miniBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(60 * p));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(60 * p));
+            }
           }
-          if (this.enemies[s][i] instanceof Fairy02) {
-            this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+          if (this.enemies[s][i].age % 120 === 0) {
+            if (this.enemies[s][i] instanceof Fairy02) {
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(30 * random(1, 10)));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(30 * random(1, 10)));
+            }
           }
         }
 
@@ -245,7 +253,9 @@ class Game {
 
     if (0 < this.enemybullets.length) {
       for (var i = 0; i < this.enemybullets.length; i++) {
-        this.enemybullets[i].hitflg = this.jiki.collisionchk(this.enemybullets[i].sprite_x, this.enemybullets[i].sprite_y, this.enemybullets[i].killingrange);
+        if (!this.jiki.hitflg && !this.jiki.isSuperarmor) {
+          this.enemybullets[i].hitflg = this.jiki.collisionchk(this.enemybullets[i].sprite_x, this.enemybullets[i].sprite_y, this.enemybullets[i].killingrange);
+        }
         this.enemybullets[i].update();
         this.enemybullets[i].limitchk();
         if (this.enemybullets[i].isFrameout) {
@@ -265,15 +275,16 @@ class Game {
         this.sakuras.push(new Sakura());
       }
     }
-    if (this.stage1age % 3600 === 0) {
-      for (var i = 0; i < 70; i++) {
-        this.sakuras.push(new Sakura());
-      }
+    if (3600 <= this.stage1age && this.stage1age <= 4200 && (this.stage1age % 8 === 0)) {
+      this.sakuras.push(new Sakura());
     }
     if (100 < this.sakuras.length) {
       for (var i = this.sakuras.length; 100 < i; i--) {
         this.sakuras.pop();
       }
+    }
+    if (5400 <= this.stage1age) {
+      this.stage1age = 0;
     }
 
     stgframe(this.stage1age);
@@ -550,9 +561,9 @@ class miniBulletofEnemy extends Bullet {
     this.isFriend = false;
     this.xspd = 0;
     this.yspd = 3;
-    this.sprite_R = 96;
-    this.sprite_G = 96;
-    this.sprite_B = 255;
+    this.sprite_R = 64;
+    this.sprite_G = 192;
+    this.sprite_B = 224;
     this.sprite_w = 4;
     this.sprite_h = 10;
     this.killingrange = 2;
@@ -561,6 +572,7 @@ class miniBulletofEnemy extends Bullet {
 
   update() {
     super.update();
+    this.fall();
   }
 
   limitchk() {
@@ -574,6 +586,10 @@ class miniBulletofEnemy extends Bullet {
 
   hit() {
     super.hit();
+  }
+
+  fall() {
+    this.yspd += 0.01;
   }
 }
 
