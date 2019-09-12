@@ -383,7 +383,7 @@ function textinfo() {
   textFont("Comic Sans MS");
   fill(255);
   textAlign(LEFT);
-  text("scores : " + game.getjikiscore(), textB2x, textB2y);
+  text("scores : " + nf(game.getjikiscore(),7), textB2x, textB2y);
 
   textSize(textSizeB3);
   textFont("Comic Sans MS");
@@ -665,12 +665,15 @@ class Sakura extends Enemy {
     this.sprite_B = random(192, 255);
     this.killingrange = 4;
     this.isVisible = true;
-    this.reward = 100;
+    this.reward = 1000;
   }
 
   update() {
     super.update();
     this.swing();
+    if (this.age === 60) {
+      this.reward *= 0.1;
+    }
   }
 
   limitchk() {
@@ -708,12 +711,15 @@ class Fairy01 extends Enemy {
     this.sprite_B = random(64, 96);
     this.killingrange = 4;
     this.isVisible = true;
-    this.reward = 2000;
+    this.reward = 20000;
   }
 
   update() {
     super.update();
     this.toleft();
+    if (this.age === 30) {
+      this.reward *= 0.1;
+    }
   }
 
   limitchk() {
