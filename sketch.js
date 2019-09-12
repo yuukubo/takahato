@@ -7,7 +7,7 @@ let [textBx, textBy, textSizeB] = [490, 160, 24];
 let [textB2x, textB2y, textSizeB2] = [490, 200, 24];
 let [textB3x, textB3y, textSizeB3] = [490, 240, 24];
 let [textCx, textCy, textSizeC] = [640, 690, 12];
-let stgTitle = "* S T G *"
+let stgTitle = "* S T G * c38"
 let dice = 0;
 let [gradient_color1, gradient_color2] = [0, 0];
 let fr = 0;
@@ -116,7 +116,7 @@ class Game {
       textFont("Comic Sans MS");
       fill(255, this.endingalpha);
       textAlign(LEFT);
-      text("your score : " + this.totalScore, canvasx * 2 / 3, canvasy * 2 / 3);
+      text("your score : " + nf(this.totalScore, 7), canvasx * 2 / 3, canvasy * 2 / 3);
 
       textSize(16);
       textFont("Comic Sans MS");
@@ -147,9 +147,13 @@ class Game {
     this.jiki.limitchk();
     this.jiki.draw();
     if (this.jiki.shooting) {
-      if (this.jiki.cooltime <= 0) {
+      if (!this.jiki.isLaser && this.jiki.cooltime <= 0) {
         this.bullets.push(new BulletFreindly((this.jiki.sprite_x + this.jiki.sprite_w / 2), this.jiki.sprite_y));
         this.jiki.cooltime = 6;
+      }
+      if (this.jiki.isLaser && this.jiki.cooltime <= 0) {
+        this.bullets.push(new BulletFreindlyLaser((this.jiki.sprite_x + this.jiki.sprite_w / 2), this.jiki.sprite_y));
+        this.jiki.cooltime = 12;
       }
       this.jiki.shooting = false;
     }
@@ -383,7 +387,7 @@ function textinfo() {
   textFont("Comic Sans MS");
   fill(255);
   textAlign(LEFT);
-  text("scores : " + nf(game.getjikiscore(),7), textB2x, textB2y);
+  text("scores : " + nf(game.getjikiscore(), 7), textB2x, textB2y);
 
   textSize(textSizeB3);
   textFont("Comic Sans MS");
@@ -476,22 +480,6 @@ class Shooter extends Sprite {
     this.score = 0;
   }
 
-  update() {
-    super.update();
-  }
-
-  limitchk() {
-    super.limitchk();
-  }
-
-  draw() {
-    super.draw();
-  }
-
-  hit() {
-    super.hit();
-  }
-
   shoot() {
     this.shooting = true;
   }
@@ -503,22 +491,7 @@ class Bullet extends Sprite {
     this.sprite_x = shooter_x;
     this.sprite_y = shooter_y;
     this.isArmorpiercing = false;
-  }
-
-  update() {
-    super.update();
-  }
-
-  limitchk() {
-    super.limitchk();
-  }
-
-  draw() {
-    super.draw();
-  }
-
-  hit() {
-    super.hit();
+    this.power = 1;
   }
 }
 
@@ -537,21 +510,32 @@ class BulletFreindly extends Bullet {
     this.isVisible = true;
   }
 
-  update() {
-    super.update();
+  draw() {
+    super.draw();
+    ellipse(this.sprite_x, this.sprite_y, this.sprite_w, this.sprite_h);
   }
+}
 
-  limitchk() {
-    super.limitchk();
+class BulletFreindlyLaser extends Bullet {
+  constructor(shooter_x, shooter_y) {
+    super(shooter_x, shooter_y);
+    this.isFriend = true;
+    this.xspd = 0;
+    this.yspd = -8;
+    this.sprite_R = 255;
+    this.sprite_G = 192;
+    this.sprite_B = 10;
+    this.sprite_w = 6;
+    this.sprite_h = 60;
+    this.killingrange = 4;
+    this.isVisible = true;
+    this.power = 2;
+    this.isArmorpiercing = true;
   }
 
   draw() {
     super.draw();
     ellipse(this.sprite_x, this.sprite_y, this.sprite_w, this.sprite_h);
-  }
-
-  hit() {
-    super.hit();
   }
 }
 
@@ -575,17 +559,9 @@ class miniBulletofEnemy extends Bullet {
     this.fall();
   }
 
-  limitchk() {
-    super.limitchk();
-  }
-
   draw() {
     super.draw();
     ellipse(this.sprite_x, this.sprite_y, this.sprite_w, this.sprite_h);
-  }
-
-  hit() {
-    super.hit();
   }
 
   fall() {
@@ -609,37 +585,18 @@ class bigBulletofEnemy extends Bullet {
     this.isVisible = true;
   }
 
-  update() {
-    super.update();
-  }
-
-  limitchk() {
-    super.limitchk();
-  }
-
   draw() {
     super.draw();
     ellipse(this.sprite_x, this.sprite_y, this.sprite_w, this.sprite_h);
     fill(this.sprite_R / 2, this.sprite_G / 2, this.sprite_B / 2);
     circle(this.sprite_x, this.sprite_y, this.killingrange);
   }
-
-  hit() {
-    super.hit();
-  }
 }
 
 class Enemy extends Shooter {
   constructor() {
     super();
-  }
-
-  update() {
-    super.update();
-  }
-
-  limitchk() {
-    super.limitchk();
+    this.hp = 1;
   }
 
   draw() {
@@ -649,7 +606,10 @@ class Enemy extends Shooter {
   }
 
   hit() {
-    super.hit();
+    this.hp--;
+    if (this.hp <= 0) {
+      this.hitflg = true;
+    }
   }
 }
 
@@ -660,6 +620,8 @@ class Sakura extends Enemy {
     this.yspd = random(0.1, 1);
     this.sprite_x = random(frameXfrom, (frameXfrom + frameXto - 3) / 2);
     this.sprite_y = random(frameYfrom, (frameYfrom + frameYto - 3) / 2);
+    this.sprite_w = 9;
+    this.sprite_h = 10;
     this.sprite_R = random(224, 255);
     this.sprite_G = random(128, 192);
     this.sprite_B = random(192, 255);
@@ -676,19 +638,11 @@ class Sakura extends Enemy {
     }
   }
 
-  limitchk() {
-    super.limitchk();
-  }
-
   draw() {
     if (this.isVisible) {
       super.draw();
-      circle(this.sprite_x, this.sprite_y, 10);
+      ellipse(this.sprite_x, this.sprite_y, this.sprite_w, this.sprite_h);
     }
-  }
-
-  hit() {
-    super.hit();
   }
 
   swing() {
@@ -712,6 +666,7 @@ class Fairy01 extends Enemy {
     this.killingrange = 4;
     this.isVisible = true;
     this.reward = 20000;
+    this.hp = 4;
   }
 
   update() {
@@ -722,20 +677,12 @@ class Fairy01 extends Enemy {
     }
   }
 
-  limitchk() {
-    super.limitchk();
-  }
-
   draw() {
     if (this.isVisible) {
       super.draw();
       ellipse(this.sprite_x, this.sprite_y, 5, 15);
       ellipse(this.sprite_x, this.sprite_y, 15, 5);
     }
-  }
-
-  hit() {
-    super.hit();
   }
 
   toleft() {
@@ -756,15 +703,12 @@ class Fairy02 extends Enemy {
     this.killingrange = 4;
     this.isVisible = true;
     this.reward = 2500;
+    this.hp = 8;
   }
 
   update() {
     super.update();
     this.toright();
-  }
-
-  limitchk() {
-    super.limitchk();
   }
 
   draw() {
@@ -775,12 +719,8 @@ class Fairy02 extends Enemy {
     }
   }
 
-  hit() {
-    super.hit();
-  }
-
   toright() {
-    this.xspd += 0.001;
+    this.xspd += 0.002;
   }
 }
 
@@ -808,6 +748,7 @@ class Jiki extends Shooter {
     this.isPichuuun = false;
     this.zanki = 3;
     this.isMagiccircle = false;
+    this.isLaser = false;
   }
 
   update() {
@@ -849,10 +790,12 @@ class Jiki extends Shooter {
         this.xspd = this.slow_xspd;
         this.yspd = this.slow_yspd;
         this.isMagiccircle = true;
+        this.isLaser = true;
       } else {
         this.xspd = this.nomal_xspd;
         this.yspd = this.nomal_yspd;
         this.isMagiccircle = false;
+        this.isLaser = false;
       }
       if (keyIsDown(90)) {
         if (!this.isSuperarmor) {
