@@ -1,13 +1,13 @@
 // stg
 
-let [canvasx, canvasy] = [700, 700];
+let [canvasx, canvasy] = [720, 700];
 let [frameXfrom, frameYfrom, frameXto, frameYto] = [30, 30, 430, 640];
 let [textAx, textAy, textSizeA] = [480, 80, 32];
 let [textBx, textBy, textSizeB] = [490, 160, 24];
 let [textB2x, textB2y, textSizeB2] = [490, 200, 24];
 let [textB3x, textB3y, textSizeB3] = [490, 240, 24];
-let [textCx, textCy, textSizeC] = [640, 690, 12];
-let stgTitle = "* S T G * c38"
+let [textCx, textCy, textSizeC] = [660, 690, 12];
+let stgTitle = "* S T G * c39.2"
 let dice = 0;
 let [gradient_color1, gradient_color2] = [0, 0];
 let fr = 0;
@@ -228,6 +228,11 @@ class Game {
             }
           }
         }
+        if (this.enemies[s][i] instanceof bigFairy && (360 <= this.enemies[s][i].age) && (this.enemies[s][i].age <= 7200) && (this.enemies[s][i].age % 10 === 0)) {
+          this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+          this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].age % 360));
+          this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].age % 360));
+        }
 
         if (0 < this.bullets.length) {
           for (var k = 0; k < this.bullets.length; k++) {
@@ -287,8 +292,12 @@ class Game {
         this.sakuras.pop();
       }
     }
-    if (5400 <= this.stage1age) {
-      this.stage1age = 0;
+    if (5400 === this.stage1age) {
+      //      this.stage1age = 0;
+      this.bigfairy.push(new bigFairy());
+    }
+    if (7500 === this.stage1age) {
+            this.stage1age = 0;
     }
 
     stgframe(this.stage1age);
@@ -308,7 +317,9 @@ class Game {
     for (var i = 0; i < this.sakuras.length; i++) {
       this.sakuras[i] = new Sakura();
     }
-    this.enemies = [this.fairy01s, this.fairy02s, this.sakuras];
+    this.bigfairy = [];
+    this.bigfbullets = [];
+    this.enemies = [this.fairy01s, this.fairy02s, this.sakuras, this.bigfairy];
     this.enemybullets = [];
   }
 
@@ -721,6 +732,57 @@ class Fairy02 extends Enemy {
 
   toright() {
     this.xspd += 0.002;
+  }
+}
+
+class bigFairy extends Enemy {
+  constructor() {
+    super();
+    this.xspd = 0;
+    this.yspd = 1;
+    this.sprite_x = ((frameXfrom + frameXto) / 2);
+    this.sprite_y = frameYfrom;
+    this.sprite_R = 255;
+    this.sprite_G = 0;
+    this.sprite_B = 255;
+    this.killingrange = 4;
+    this.isVisible = true;
+    this.reward = 500000;
+    this.hp1 = 80;
+    this.spellhp1 = 800;
+    this.hp2 = 100;
+    this.spellhp2 = 1000;
+    this.hp3 = 120;
+    this.spellhp3 = 1200;
+    this.hp = this.hp1;
+  }
+
+  update() {
+    super.update();
+    if (this.age % 360 === 0) {
+      this.stop();
+    }
+  }
+
+  draw() {
+    if (this.isVisible) {
+      super.draw();
+      ellipse(this.sprite_x, this.sprite_y, 5, 35);
+      ellipse(this.sprite_x, this.sprite_y - 5, 20, 5);
+    }
+  }
+
+  toright() {
+    this.xspd = 1;
+    this.yspd = 0;
+  }
+  toleft() {
+    this.xspd = -1;
+    this.yspd = 0;
+  }
+  stop() {
+    this.xspd = 0;
+    this.yspd = 0;
   }
 }
 
