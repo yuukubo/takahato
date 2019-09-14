@@ -7,7 +7,7 @@ let [textBx, textBy, textSizeB] = [490, 160, 24];
 let [textB2x, textB2y, textSizeB2] = [490, 200, 24];
 let [textB3x, textB3y, textSizeB3] = [490, 240, 24];
 let [textCx, textCy, textSizeC] = [660, 690, 12];
-let stgTitle = "* S T G * c40.4"
+let stgTitle = "* S T G * c41.1"
 let dice = 0;
 let [gradient_color1, gradient_color2] = [0, 0];
 let fr = 0;
@@ -72,7 +72,7 @@ class Game {
       this.titlealpha++;
     }
     this.titlelogo();
-    if ((this.titlealpha === 255) && keyIsDown(90)) {
+    if ((this.titlealpha === 255) && (keyIsDown(90) || mouseIsPressed)) {
       this.gamescenenow = "stage1";
       this.titlealpha = 0;
     }
@@ -102,7 +102,7 @@ class Game {
       this.endingalpha++;
     }
     this.ending1();
-    if ((this.endingalpha === 255) && keyIsDown(90)) {
+    if ((this.endingalpha === 255) && (keyIsDown(90) || mouseIsPressed)) {
       this.gamescenenow = "title";
       this.endingalpha = 0;
       this.totalScore = 0;
@@ -139,7 +139,7 @@ class Game {
       this.endingalpha++;
     }
     this.ending2();
-    if ((this.endingalpha === 255) && keyIsDown(90)) {
+    if ((this.endingalpha === 255) && (keyIsDown(90) || mouseIsPressed)) {
       this.gamescenenow = "title";
       this.endingalpha = 0;
       this.totalScore = 0;
@@ -935,7 +935,7 @@ class Jiki extends Shooter {
     this.xspd = this.nomal_xspd;
     this.yspd = this.nomal_yspd;
     this.sprite_x = (frameXfrom + frameXto) / 2;
-    this.sprite_y = (frameYfrom + frameYto) * 5 / 6;
+    this.sprite_y = (frameYfrom + frameYto) * 6 / 7;
     this.sprite_w = 10;
     this.sprite_h = 10;
     this.sprite_R = 255;
@@ -995,7 +995,7 @@ class Jiki extends Shooter {
         this.isMagiccircle = false;
         this.isLaser = false;
       }
-      if (keyIsDown(90)) {
+      if (keyIsDown(90) || mouseIsPressed) {
         if (!this.isSuperarmor) {
           this.shoot();
         }
