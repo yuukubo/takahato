@@ -7,7 +7,7 @@ let [textBx, textBy, textSizeB] = [490, 160, 24];
 let [textB2x, textB2y, textSizeB2] = [490, 200, 24];
 let [textB3x, textB3y, textSizeB3] = [490, 240, 24];
 let [textCx, textCy, textSizeC] = [660, 690, 12];
-let stgTitle = "* S T G * c41.1"
+let stgTitle = "* S T G * c42.3"
 let dice = 0;
 let [gradient_color1, gradient_color2] = [0, 0];
 let fr = 0;
@@ -293,14 +293,14 @@ class Game {
 
         if (0 < this.bullets.length) {
           for (var k = 0; k < this.bullets.length; k++) {
-            this.bullets[k].hitflg = this.enemies[s][i].collisionchk(this.bullets[k].sprite_x, this.bullets[k].sprite_y, this.bullets[k].killingrange);
+            this.bullets[k].hitflg = this.enemies[s][i].collisionchk(this.bullets[k].sprite_x, this.bullets[k].sprite_y, this.bullets[k].killingrange, this.bullets[k].power);
             if (this.bullets[k].hitflg) {
               return;
             }
           }
         }
         if (!this.jiki.hitflg && !this.jiki.isSuperarmor) {
-          if (this.enemies[s][i].collisionchk(this.jiki.sprite_x_core, this.jiki.sprite_y_core, this.jiki.killingrange)) {
+          if (this.enemies[s][i].collisionchk(this.jiki.sprite_x_core, this.jiki.sprite_y_core, this.jiki.killingrange, this.jiki.power)) {
             if (!this.jiki.isSuperarmor) {
               this.jiki.hit();
             }
@@ -323,7 +323,7 @@ class Game {
     if (0 < this.enemybullets.length) {
       for (var i = 0; i < this.enemybullets.length; i++) {
         if (!this.jiki.hitflg && !this.jiki.isSuperarmor) {
-          this.enemybullets[i].hitflg = this.jiki.collisionchk(this.enemybullets[i].sprite_x, this.enemybullets[i].sprite_y, this.enemybullets[i].killingrange);
+          this.enemybullets[i].hitflg = this.jiki.collisionchk(this.enemybullets[i].sprite_x, this.enemybullets[i].sprite_y, this.enemybullets[i].killingrange, this.enemybullets[i].power);
         }
         this.enemybullets[i].update();
         this.enemybullets[i].limitchk();
@@ -505,6 +505,8 @@ class Sprite {
     this.age = 0
     this.sprite_x_core = this.sprite_x + (this.sprite_w / 2);
     this.sprite_y_core = this.sprite_y + (this.sprite_h / 2);
+    this.power = 1;
+    this.damagecnt = 0;
   }
 
   update() {
@@ -527,9 +529,10 @@ class Sprite {
     this.isFrameout = true;
   }
 
-  collisionchk(opponent_x, opponent_y, opponent_killingrange) {
+  collisionchk(opponent_x, opponent_y, opponent_killingrange, opponent_power) {
     this.dist = dist(this.sprite_x, this.sprite_y, opponent_x, opponent_y)
     if (this.dist <= this.killingrange + opponent_killingrange) {
+      this.damagecnt += opponent_power;
       this.hit();
       return true;
     } else {
@@ -568,7 +571,6 @@ class Bullet extends Sprite {
     this.sprite_x = shooter_x;
     this.sprite_y = shooter_y;
     this.isArmorpiercing = false;
-    this.power = 1;
   }
 }
 
@@ -684,7 +686,8 @@ class Enemy extends Shooter {
   }
 
   hit() {
-    this.hp--;
+    this.hp -= this.damagecnt;
+    this.damagecnt = 0;
     if (this.hp <= 0) {
       this.hitflg = true;
     }
@@ -878,7 +881,8 @@ class bigFairy extends Enemy {
   }
 
   hit() {
-    this.hp--;
+    this.hp -= this.damagecnt;
+    this.damagecnt = 0;
     if (this.hp <= 0) {
       if (this.mode_now === this.mode_nomal1) {
         this.hp = this.spellhp1;
