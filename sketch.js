@@ -7,7 +7,7 @@ let [textBx, textBy, textSizeB] = [490, 160, 24];
 let [textB2x, textB2y, textSizeB2] = [490, 200, 24];
 let [textB3x, textB3y, textSizeB3] = [490, 240, 24];
 let [textCx, textCy, textSizeC] = [660, 690, 12];
-let stgTitle = "* S T G * c42.3"
+let stgTitle = "* S T G * c43.3"
 let dice = 0;
 let [gradient_color1, gradient_color2] = [0, 0];
 let fr = 0;
@@ -34,6 +34,7 @@ class Game {
     this.totalScore = 0;
     this.stage1score = 0;
     this.titlealpha = 0;
+    this.intro1alpha = 0;
     this.endingalpha = 0;
   }
 
@@ -50,6 +51,10 @@ class Game {
   scenectl() {
     if (this.gamescenenow === "title") {
       this.scenetitle();
+      this.update();
+    }
+    if (this.gamescenenow === "introstage1") {
+      this.introscenestage1();
       this.update();
     }
     if (this.gamescenenow === "stage1") {
@@ -73,7 +78,7 @@ class Game {
     }
     this.titlelogo();
     if ((this.titlealpha === 255) && (keyIsDown(90) || mouseIsPressed)) {
-      this.gamescenenow = "stage1";
+      this.gamescenenow = "introstage1";
       this.titlealpha = 0;
     }
   }
@@ -168,6 +173,27 @@ class Game {
         text("press Z to New Game !!", canvasx * 2 / 3, canvasy * 3 / 4);
       }
     }
+  }
+
+  
+  introscenestage1() {
+    background(30);
+    if (this.intro1alpha < 255) {
+      this.intro1alpha++;
+    }
+    this.introscenestage1logo();
+    if (this.intro1alpha === 255) {
+      this.gamescenenow = "stage1";
+      this.intro1alpha = 0;
+    }
+  }
+
+  introscenestage1logo() {
+    textSize(64);
+    textFont("Comic Sans MS");
+    fill(255, this.intro1alpha);
+    textAlign(CENTER);
+    text("stage 1 start !!", canvasx / 2, canvasy / 3);
   }
 
   scenestage1() {
@@ -287,6 +313,71 @@ class Game {
               this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
               this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].age % 360 + 180));
               this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].age % 360 + 180));
+            }
+          }
+          if (this.enemies[s][i].mode_now === this.enemies[s][i].mode_nomal2) {
+            if (this.enemies[s][i].age % 10 === 0) {
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(-1 * this.enemies[s][i].age % 360));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(-1 * this.enemies[s][i].age % 360));
+            }
+            if (this.enemies[s][i].age % 60 === 0) {
+              this.enemies[s][i].atan = atan2(this.jiki.sprite_y - this.enemies[s][i].sprite_y, this.jiki.sprite_x - (this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2)) / PI * 180 + 360;
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].atan));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].atan));
+            }
+          }
+          if (this.enemies[s][i].mode_now === this.enemies[s][i].mode_spell2) {
+            if (this.enemies[s][i].age % 10 === 0) {
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].age % 360));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].age % 360));
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(-1 * this.enemies[s][i].age % 360 + 180));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(-1 * this.enemies[s][i].age % 360 + 180));
+            }
+            if (this.enemies[s][i].age % 60 === 0) {
+              this.enemies[s][i].atan = atan2(this.jiki.sprite_y - this.enemies[s][i].sprite_y, this.jiki.sprite_x - (this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2)) / PI * 180 + 360;
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].atan));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].atan));
+            }
+          }
+          if (this.enemies[s][i].mode_now === this.enemies[s][i].mode_nomal3) {
+            if (this.enemies[s][i].age % 30 === 0) {
+              this.enemies[s][i].atan = atan2(this.jiki.sprite_y - this.enemies[s][i].sprite_y, this.jiki.sprite_x - (this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2)) / PI * 180 + 360;
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].atan));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].atan));
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].atan + 15));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].atan + 15));
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].atan - 15));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].atan - 15));
+            }
+          }
+          if (this.enemies[s][i].mode_now === this.enemies[s][i].mode_spell3) {
+            if (this.enemies[s][i].age % 10 === 0) {
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].age % 360));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].age % 360));
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(-1 * this.enemies[s][i].age % 360 + 180));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(-1 * this.enemies[s][i].age % 360 + 180));
+            }
+            if (this.enemies[s][i].age % 30 === 0) {
+              this.enemies[s][i].atan = atan2(this.jiki.sprite_y - this.enemies[s][i].sprite_y, this.jiki.sprite_x - (this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2)) / PI * 180 + 360;
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].atan));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].atan));
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].atan + 15));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].atan + 15));
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].atan - 15));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].atan - 15));
             }
           }
         }
@@ -558,6 +649,7 @@ class Shooter extends Sprite {
     this.cooltime = 0;
     this.score = 0;
     this.isMagiccircle = false;
+    this.atan = 0;
   }
 
   shoot() {
@@ -608,8 +700,7 @@ class BulletFreindlyLaser extends Bullet {
     this.sprite_h = 60;
     this.killingrange = 4;
     this.isVisible = true;
-//    this.power = 2;
-    this.power = 20;
+    this.power = 2;
     this.isArmorpiercing = true;
   }
 
@@ -842,7 +933,7 @@ class bigFairy extends Enemy {
 
   update() {
     super.update();
-    if (this.age === 300) {
+    if (this.age === 240) {
       this.stop();
       this.mode_now = this.mode_nomal1;
     }
@@ -851,6 +942,15 @@ class bigFairy extends Enemy {
     }
     if (this.mode_now === this.mode_nomal2) {
       this.stop();
+    }
+    if (this.mode_now === this.mode_spell2 && this.hp === (this.spellhp2 / 2)) {
+      this.toleft();
+    }
+    if (this.mode_now === this.mode_nomal3) {
+      this.stop();
+    }
+    if (this.mode_now === this.mode_spell3 && this.hp === (this.spellhp3 / 2)) {
+      this.toleft();
     }
   }
 
