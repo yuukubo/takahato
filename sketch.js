@@ -7,7 +7,7 @@ let [textBx, textBy, textSizeB] = [490, 160, 24];
 let [textB2x, textB2y, textSizeB2] = [490, 200, 24];
 let [textB3x, textB3y, textSizeB3] = [490, 240, 24];
 let [textCx, textCy, textSizeC] = [660, 680, 12];
-let stgTitle = "* S T G * c44.1"
+let stgTitle = "* S T G * c45.1"
 let dice = 0;
 let [gradient_color1, gradient_color2] = [0, 0];
 let fr = 0;
@@ -1091,7 +1091,7 @@ class Jiki extends Shooter {
           this.sprite_y += this.yspd;
         }
       }
-      if (keyIsDown(SHIFT)) {
+      if (keyIsDown(SHIFT) || touches.length === 2) {
         this.xspd = this.slow_xspd;
         this.yspd = this.slow_yspd;
         this.isMagiccircle = true;
@@ -1102,6 +1102,14 @@ class Jiki extends Shooter {
         this.isMagiccircle = false;
         this.isLaser = false;
       }
+      if (mouseIsPressed) {
+        this.atan = atan2(mouseY - this.sprite_y + this.sprite_h / 2, mouseX - this.sprite_x + this.sprite_w / 2) / PI * 180 + 360;
+        this.xspd *= cos(radians(this.atan));
+        this.yspd *= sin(radians(this.atan));
+        this.sprite_x += this.xspd;
+        this.sprite_y += this.yspd;
+      }
+
       if (keyIsDown(90) || mouseIsPressed) {
         if (!this.isSuperarmor) {
           this.shoot();
