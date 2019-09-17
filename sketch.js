@@ -1,13 +1,13 @@
 // stg
 
-let [canvasx, canvasy] = [720, 700];
-let [frameXfrom, frameYfrom, frameXto, frameYto] = [30, 30, 430, 640];
+let [canvasx, canvasy] = [720, 690];
+let [frameXfrom, frameYfrom, frameXto, frameYto] = [30, 30, 430, 630];
 let [textAx, textAy, textSizeA] = [480, 80, 32];
 let [textBx, textBy, textSizeB] = [490, 160, 24];
 let [textB2x, textB2y, textSizeB2] = [490, 200, 24];
 let [textB3x, textB3y, textSizeB3] = [490, 240, 24];
-let [textCx, textCy, textSizeC] = [660, 690, 12];
-let stgTitle = "* S T G * c43.3"
+let [textCx, textCy, textSizeC] = [660, 680, 12];
+let stgTitle = "* S T G * c44.1"
 let dice = 0;
 let [gradient_color1, gradient_color2] = [0, 0];
 let fr = 0;
@@ -17,7 +17,7 @@ function setup() {
   createCanvas(canvasx, canvasy);
   fr = frameRate();
   game = new Game();
-  [gradient_color1, gradient_color2] = [color(150), color(0)];
+  [gradient_color1, gradient_color2] = [color(150), color(50)];
 }
 
 function draw() {
@@ -526,15 +526,18 @@ function stgframe(gameage) {
 }
 
 function setGradient_Y(x, y, w, h, c1, c2) {
-  noFill();
-  // Top to bottom gradient
-  for (let i = y; i <= y + h; i = i + 10) {
-    let inter = map(i, y, y + h, 0, 1);
+  push();
+  for (let i = y; i <= h; i += y) {
+    let inter = map(i, y, h, 0, 1);
     let c = lerpColor(c1, c2, inter);
-    strokeWeight(10);
-    stroke(c);
-    line(x, i, x + w, i);
+    fill(c);
+    noStroke();
+    rect(x, i, w, y);
   }
+    noStroke();
+    fill(35, 25, 70);
+    rect(0, (frameYfrom + frameYto), (frameXfrom + frameXto), frameYfrom);
+  pop();
 }
 
 function textinfo() {
@@ -933,7 +936,7 @@ class bigFairy extends Enemy {
 
   update() {
     super.update();
-    if (this.age === 240) {
+    if (this.age === 180) {
       this.stop();
       this.mode_now = this.mode_nomal1;
     }
@@ -962,7 +965,7 @@ class bigFairy extends Enemy {
       fill(this.sprite_R, this.sprite_G, this.sprite_B, this.sprite_Alpha / 3);
       ellipse(this.sprite_x, canvasy - (frameYfrom / 2) , 40, 10);
       if (this.isMagiccircle) {
-        strokeWeight(1);
+        strokeWeight(3);
         stroke((this.sprite_R), (this.sprite_G), (this.sprite_B), (this.sprite_Alpha / 2));
         fill(255, 255, 255, 0);
         circle(this.sprite_x, this.sprite_y, (this.killingrange * 25));
