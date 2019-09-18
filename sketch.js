@@ -7,8 +7,9 @@ let [textBx, textBy, textSizeB] = [490, 160, 24];
 let [textB2x, textB2y, textSizeB2] = [490, 200, 24];
 let [textB3x, textB3y, textSizeB3] = [490, 240, 24];
 let [textB4x, textB4y, textSizeB4] = [490, 280, 24];
+let [textB5x, textB5y, textSizeB5] = [490, 320, 24];
 let [textCx, textCy, textSizeC] = [660, 680, 12];
-let stgTitle = "* S T G * c46.4"
+let stgTitle = "* S T G * c47.2"
 let dice = 0;
 let [gradient_color1, gradient_color2] = [0, 0];
 let fr = 0;
@@ -32,12 +33,19 @@ class Game {
     this.stage1age = 0;
     this.isstage1clear = false;
     this.isstage1bossnow = false;
+    this.stage2age = 0;
+    this.isstage2clear = false;
+    this.isstage2bossnow = false;
     this.needsetupflg = true;
     this.totalScore = 0;
     this.stage1score = 0;
+    this.stage2score = 0;
     this.titlealpha = 0;
     this.intro1alpha = 0;
+    this.intro2alpha = 0;
     this.endingalpha = 0;
+    this.carryzanki = 0;
+    this.carryspell = 0;
   }
 
   update() {
@@ -61,6 +69,14 @@ class Game {
     }
     if (this.gamescenenow === "stage1") {
       this.scenestage1();
+      this.update();
+    }
+    if (this.gamescenenow === "introstage2") {
+      this.introscenestage2();
+      this.update();
+    }
+    if (this.gamescenenow === "stage2") {
+      this.scenestage2();
       this.update();
     }
     if (this.gamescenenow === "gameover") {
@@ -113,6 +129,8 @@ class Game {
       this.gamescenenow = "title";
       this.endingalpha = 0;
       this.totalScore = 0;
+      this.carryzanki = 0;
+      this.carryspell = 0;  
     }
   }
 
@@ -176,7 +194,6 @@ class Game {
       }
     }
   }
-
 
   introscenestage1() {
     background(30);
@@ -243,10 +260,6 @@ class Game {
         this.jiki.cooltime = 12;
       }
       this.jiki.shooting = false;
-    }
-
-    if (0 < this.jiki.cooltime) {
-      this.jiki.cooltime--;
     }
 
     if (0 < this.bullets.length) {
@@ -501,8 +514,9 @@ class Game {
   stage1setup() {
     this.jiki = new Jiki();
     this.jiki.SuperarmorTimer = 240;
-    this.jiki.score = + this.totalScore;
-    this.jiki.zanki = 3;
+    this.jiki.score = this.totalScore;
+    this.jiki.zanki += this.carryzanki;
+    this.jiki.spellstock += this.carryspell;
     this.bullets = [];
     this.fairy01s = [];
     this.f01bullets = [];
@@ -517,6 +531,7 @@ class Game {
     this.enemies = [this.fairy01s, this.fairy02s, this.sakuras, this.bigfairy];
     this.enemybullets = [];
     this.isstage1bossnow = false;
+    [gradient_color1, gradient_color2] = [color(150), color(50)];
   }
 
   stage1cleanup() {
@@ -530,11 +545,15 @@ class Game {
     this.sakuras = [];
     this.isstage1bossnow = false;
     if (this.isstage1clear) {
-      this.gamescenenow = "gameclear";
+      this.gamescenenow = "introstage2";
       this.isstage1clear = false;
+      this.jiki.zanki += 1;
+      this.jiki.spellstock += 3;
     } else {
       this.gamescenenow = "gameover";
     }
+    this.carryzanki = this.jiki.zanki;
+    this.carryspell = this.jiki.spellstock;
   }
 
   getsakuraslength() {
@@ -548,6 +567,368 @@ class Game {
   }
   getjikispellstock() {
     return this.jiki.spellstock;
+  }
+  
+  introscenestage2() {
+    background(224, 168, 192);
+    if (this.intro2alpha < 255) {
+      this.intro2alpha++;
+    }
+    this.introscenestage2logo();
+    if (this.intro2alpha === 255) {
+      this.gamescenenow = "stage2";
+      this.intro2alpha = 0;
+    }
+  }
+
+  introscenestage2logo() {
+    textSize(64);
+    textFont("Comic Sans MS");
+    fill(192, 255, 255, this.intro2alpha);
+    textAlign(CENTER);
+    text("stage 2 start !!", canvasx / 2, canvasy / 3);
+  }
+
+  scenestage2() {
+
+    if (this.needsetupflg === true) {
+      this.stage2setup();
+      this.needsetupflg = false;
+    }
+    this.stage2age++;
+    background(35, 25, 70);
+    stgboard(this.stage2age);
+    textinfo();
+
+    if (this.jiki.zanki < 0) {
+      this.stage2cleanup();
+    }
+
+    this.jiki.update();
+    this.jiki.limitchk();
+    this.jiki.draw();
+    if (this.jiki.shooting) {
+      if (this.jiki.isSpell && this.jiki.cooltime <= 0) {
+        this.bullets.push(new BulletFreindlySpell((this.jiki.sprite_x + this.jiki.sprite_w / 2), this.jiki.sprite_y));
+        this.bullets.push(new BulletFreindlySpell((this.jiki.sprite_x + this.jiki.sprite_w / 2), this.jiki.sprite_y));
+        this.bullets[this.bullets.length - 1].xspd += cos(radians(30 + random(-10, 10)));
+        this.bullets[this.bullets.length - 1].yspd += sin(radians(30 + random(-10, 10)));
+        this.bullets[this.bullets.length - 1].sprite_R += random(-50, 50);
+        this.bullets[this.bullets.length - 1].sprite_G += random(-50, 50);
+        this.bullets[this.bullets.length - 1].sprite_B += random(-50, 50);
+        this.bullets.push(new BulletFreindlySpell((this.jiki.sprite_x + this.jiki.sprite_w / 2), this.jiki.sprite_y));
+        this.bullets[this.bullets.length - 1].xspd -= cos(radians(-30 + random(-10, 10)));
+        this.bullets[this.bullets.length - 1].yspd -= sin(radians(-30 + random(-10, 10)));
+        this.bullets[this.bullets.length - 1].sprite_R += random(-50, 50);
+        this.bullets[this.bullets.length - 1].sprite_G += random(-50, 50);
+        this.bullets[this.bullets.length - 1].sprite_B += random(-50, 50);
+        this.jiki.cooltime = 240;
+        this.jiki.isSpell = false;
+      }
+      if (!this.jiki.isLaser && this.jiki.cooltime <= 0) {
+        this.bullets.push(new BulletFreindly((this.jiki.sprite_x + this.jiki.sprite_w / 2), this.jiki.sprite_y));
+        this.jiki.cooltime = 6;
+      }
+      if (this.jiki.isLaser && this.jiki.cooltime <= 0) {
+        this.bullets.push(new BulletFreindlyLaser((this.jiki.sprite_x + this.jiki.sprite_w / 2), this.jiki.sprite_y));
+        this.jiki.cooltime = 12;
+      }
+      this.jiki.shooting = false;
+    }
+
+    if (0 < this.bullets.length) {
+      for (var i = 0; i < this.bullets.length; i++) {
+        this.bullets[i].update();
+        this.bullets[i].limitchk();
+        if (this.bullets[i].isFrameout) {
+          this.bullets.splice(i, 1);
+        } else if (!this.bullets[i].isArmorpiercing && this.bullets[i].hitflg) {
+          this.bullets.splice(i, 1);
+        } else {
+          this.bullets[i].draw();
+        }
+      }
+    }
+
+    if (600 <= this.stage2age && this.stage2age <= 960) {
+      if ((this.stage2age % 30) === 0) {
+        this.fairy03s.push(new Fairy03());
+      }
+    }
+
+    if (1020 <= this.stage2age && this.stage2age <= 1380) {
+      if ((this.stage2age % 30) === 0) {
+        this.fairy04s.push(new Fairy04());
+      }
+    }
+
+    if (1440 <= this.stage2age && this.stage2age <= 1800) {
+      if ((this.stage2age % 30) === 0) {
+        this.fairy03s.push(new Fairy03());
+      }
+    }
+
+    if (1860 <= this.stage2age && this.stage2age <= 2220) {
+      if ((this.stage2age % 30) === 0) {
+        this.fairy04s.push(new Fairy04());
+      }
+    }
+
+    if (2400 <= this.stage2age && this.stage2age <= 2760) {
+      if ((this.stage2age % 10) === 0) {
+        this.fairy03s.push(new Fairy03());
+        this.fairy04s.push(new Fairy04());
+      }
+    }
+
+    for (var s = 0; s < this.enemies.length; s++) {
+      for (var i = 0; i < this.enemies[s].length; i++) {
+        this.enemies[s][i].update();
+        this.enemies[s][i].limitchk();
+
+        if (180 <= this.enemies[s][i].age && this.enemies[s][i].age <= 300 && (this.enemies[s][i].age % 60 === 0)) {
+          if (this.enemies[s][i] instanceof Fairy03) {
+            for (var p = 1; p <= 6; p++) {
+              this.enemybullets.push(new miniBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(60 * p));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(60 * p));
+            }
+          }
+          if (this.enemies[s][i].age % 120 === 0) {
+            if (this.enemies[s][i] instanceof Fairy04) {
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(30 * random(1, 10)));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(30 * random(1, 10)));
+            }
+          }
+        }
+
+        if (this.enemies[s][i] instanceof bigFairy) {
+          if (this.enemies[s][i].mode_now === this.enemies[s][i].mode_nomal1) {
+            if (this.enemies[s][i].age % 10 === 0) {
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].age % 360));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].age % 360));
+            }
+          }
+          if (this.enemies[s][i].mode_now === this.enemies[s][i].mode_spell1) {
+            if (this.enemies[s][i].age % 10 === 0) {
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].age % 360));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].age % 360));
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].age % 360 + 180));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].age % 360 + 180));
+            }
+          }
+          if (this.enemies[s][i].mode_now === this.enemies[s][i].mode_nomal2) {
+            if (this.enemies[s][i].age % 10 === 0) {
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(-1 * this.enemies[s][i].age % 360));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(-1 * this.enemies[s][i].age % 360));
+            }
+            if (this.enemies[s][i].age % 60 === 0) {
+              this.enemies[s][i].atan = atan2(this.jiki.sprite_y - this.enemies[s][i].sprite_y, this.jiki.sprite_x - (this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2)) / PI * 180 + 360;
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].atan));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].atan));
+            }
+          }
+          if (this.enemies[s][i].mode_now === this.enemies[s][i].mode_spell2) {
+            if (this.enemies[s][i].age % 10 === 0) {
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].age % 360));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].age % 360));
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(-1 * this.enemies[s][i].age % 360 + 180));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(-1 * this.enemies[s][i].age % 360 + 180));
+            }
+            if (this.enemies[s][i].age % 60 === 0) {
+              this.enemies[s][i].atan = atan2(this.jiki.sprite_y - this.enemies[s][i].sprite_y, this.jiki.sprite_x - (this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2)) / PI * 180 + 360;
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].atan));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].atan));
+            }
+          }
+          if (this.enemies[s][i].mode_now === this.enemies[s][i].mode_nomal3) {
+            if (this.enemies[s][i].age % 30 === 0) {
+              this.enemies[s][i].atan = atan2(this.jiki.sprite_y - this.enemies[s][i].sprite_y, this.jiki.sprite_x - (this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2)) / PI * 180 + 360;
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].atan));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].atan));
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].atan + 15));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].atan + 15));
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].atan - 15));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].atan - 15));
+            }
+          }
+          if (this.enemies[s][i].mode_now === this.enemies[s][i].mode_spell3) {
+            if (this.enemies[s][i].age % 10 === 0) {
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].age % 360));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].age % 360));
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(-1 * this.enemies[s][i].age % 360 + 180));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(-1 * this.enemies[s][i].age % 360 + 180));
+            }
+            if (this.enemies[s][i].age % 30 === 0) {
+              this.enemies[s][i].atan = atan2(this.jiki.sprite_y - this.enemies[s][i].sprite_y, this.jiki.sprite_x - (this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2)) / PI * 180 + 360;
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].atan));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].atan));
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].atan + 15));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].atan + 15));
+              this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
+              this.enemybullets[this.enemybullets.length - 1].xspd = cos(radians(this.enemies[s][i].atan - 15));
+              this.enemybullets[this.enemybullets.length - 1].yspd = sin(radians(this.enemies[s][i].atan - 15));
+            }
+          }
+        }
+        if (0 < this.enemies[s][i].SuperarmorTimer) {
+          this.enemies[s][i].SuperarmorTimer--;
+        } else {
+          this.enemies[s][i].isSuperarmor = false;
+        }
+        if (0 < this.bullets.length) {
+          for (var k = 0; k < this.bullets.length; k++) {
+            if (!this.enemies[s][i].isSuperarmor) {
+              this.bullets[k].hitflg = this.enemies[s][i].collisionchk(this.bullets[k].sprite_x, this.bullets[k].sprite_y, this.bullets[k].killingrange, this.bullets[k].power);
+              if (this.bullets[k].hitflg) {
+                if (this.bullets[k].isArmorpiercing) {
+                  this.enemies[s][i].isSuperarmor = true;
+                  if (this.bullets[k] instanceof BulletFreindlySpell) {
+                    this.enemies[s][i].SuperarmorTimer = 30;
+                  } else {
+                    this.enemies[s][i].SuperarmorTimer = 10;
+                  }
+                }
+                return;
+              }
+            }
+          }
+        }
+        if (!this.jiki.hitflg && !this.jiki.isSuperarmor) {
+          if (this.enemies[s][i].collisionchk(this.jiki.sprite_x_core, this.jiki.sprite_y_core, this.jiki.killingrange, this.jiki.power)) {
+            if (!this.jiki.isSuperarmor) {
+              this.jiki.hit();
+            }
+          }
+        }
+        if (this.enemies[s][i].isFrameout || this.enemies[s][i].hitflg) {
+          if (this.enemies[s][i].hitflg) {
+            this.jiki.score += this.enemies[s][i].reward;
+            if (this.enemies[s][i] instanceof bigFairy) {
+              this.isstage2clear = true;
+            }
+          }
+          this.enemies[s].splice(i, 1);
+        } else {
+          this.enemies[s][i].draw();
+        }
+      }
+    }
+
+    if (0 < this.enemybullets.length) {
+      for (var i = 0; i < this.enemybullets.length; i++) {
+        if (0 < this.bullets.length) {
+          for (var k = 0; k < this.bullets.length; k++) {
+            if (this.bullets[k] instanceof BulletFreindlySpell) {
+              this.enemybullets[i].collisionchk(this.bullets[k].sprite_x, this.bullets[k].sprite_y, this.bullets[k].killingrange, this.bullets[k].power);
+            }
+          }
+        }
+        if (!this.jiki.hitflg && !this.jiki.isSuperarmor) {
+          this.enemybullets[i].hitflg = this.jiki.collisionchk(this.enemybullets[i].sprite_x, this.enemybullets[i].sprite_y, this.enemybullets[i].killingrange, this.enemybullets[i].power);
+        }
+        this.enemybullets[i].update();
+        this.enemybullets[i].limitchk();
+        if (this.enemybullets[i].isFrameout) {
+          this.enemybullets.splice(i, 1);
+        } else if (!this.enemybullets[i].isArmorpiercing && this.enemybullets[i].hitflg) {
+          this.enemybullets.splice(i, 1);
+        } else {
+          this.enemybullets[i].draw();
+        }
+      }
+    }
+
+    diceroll();
+    if (dice === 6) {
+      diceroll();
+      if (dice === 6) {
+        this.sakuras.push(new Sakura());
+      }
+    }
+    if (3600 <= this.stage2age && this.stage2age <= 4200 && (this.stage2age % 9 === 0)) {
+      this.sakuras.push(new Sakura());
+    }
+    if (100 < this.sakuras.length) {
+      for (var i = this.sakuras.length; 100 < i; i--) {
+        this.sakuras.pop();
+      }
+    }
+    if (5400 === this.stage2age) {
+      this.bigfairy.push(new bigFairy());
+      this.isstage2bossnow = true;
+    }
+    if (this.isstage2clear) {
+      this.stage2cleanup();
+    }
+    if (5400 <= this.stage2age && !this.isstage2bossnow) {
+      this.bigfairy.push(new bigFairy());
+      this.isstage2bossnow = true;
+    }
+    stgframe(this.stage2age);
+  }
+
+  stage2setup() {
+    this.jiki = new Jiki();
+    this.jiki.SuperarmorTimer = 240;
+    this.jiki.score = this.totalScore;
+    this.jiki.zanki = this.carryzanki;
+    this.jiki.spellstock = this.carryspell;
+    this.bullets = [];
+    this.fairy03s = [];
+    this.f03bullets = [];
+    this.fairy04s = [];
+    this.f04bullets = [];
+    this.sakuras = new Array(Math.floor(random(4, 20)));
+    for (var i = 0; i < this.sakuras.length; i++) {
+      this.sakuras[i] = new Sakura();
+    }
+    this.bigfairy = [];
+    this.bigfbullets = [];
+    this.enemies = [this.fairy03s, this.fairy04s, this.sakuras, this.bigfairy];
+    this.enemybullets = [];
+    this.isstage2bossnow = false;
+    [gradient_color1, gradient_color2] = [color(168, 32, 128), color(16, 3, 12)];
+  }
+
+  stage2cleanup() {
+    this.needsetupflg = true;
+    this.stage2age = 0;
+    this.jiki.SuperarmorTimer = 240;
+    this.stage2score = this.jiki.score;
+    this.totalScore = this.jiki.score;
+    this.carryzanki = this.jiki.zanki;
+    this.carryspell = this.jiki.spellstock;
+    this.jiki.score = 0;
+    this.bullets = [];
+    this.sakuras = [];
+    this.isstage2bossnow = false;
+    if (this.isstage2clear) {
+      this.gamescenenow = "gameclear";
+      this.isstage2clear = false;
+      this.jiki.zanki += 1;
+      this.jiki.spellstock += 3;
+    } else {
+      this.gamescenenow = "gameover";
+    }
+    this.carryzanki = this.jiki.zanki;
+    this.carryspell = this.jiki.spellstock;
   }
 }
 
@@ -619,6 +1000,12 @@ function textinfo() {
   fill(255);
   textAlign(LEFT);
   text("spells  : " + game.getjikispellstock(), textB4x, textB4y);
+
+  textSize(textSizeB5);
+  textFont("Comic Sans MS");
+  fill(255);
+  textAlign(LEFT);
+  text("now  : " + game.gamescenenow, textB5x, textB5y);
 
   textSize(textSizeC);
   textFont("Comic Sans MS");
@@ -997,6 +1384,77 @@ class Fairy02 extends Enemy {
   }
 }
 
+class Fairy03 extends Enemy {
+  constructor() {
+    super();
+    this.xspd = 0;
+    this.yspd = 1;
+    this.sprite_x = random(frameXto / 2, frameXto);
+    this.sprite_y = frameYfrom;
+    this.sprite_R = random(192, 252);
+    this.sprite_G = random(168, 224);
+    this.sprite_B = random(32, 96);
+    this.killingrange = 4;
+    this.isVisible = true;
+    this.reward = 25000;
+    this.hp = 6;
+  }
+
+  update() {
+    super.update();
+    this.toleft();
+    if (this.age === 30) {
+      this.reward *= 0.1;
+    }
+  }
+
+  draw() {
+    if (this.isVisible) {
+      super.draw();
+      ellipse(this.sprite_x, this.sprite_y, 5, 15);
+      ellipse(this.sprite_x, this.sprite_y, 15, 5);
+    }
+  }
+
+  toleft() {
+    this.xspd -= 0.003;
+  }
+}
+
+class Fairy04 extends Enemy {
+  constructor() {
+    super();
+    this.xspd = 0;
+    this.yspd = 1;
+    this.sprite_x = random(frameXfrom, frameXto / 2);
+    this.sprite_y = frameYfrom;
+    this.sprite_R = random(128, 192);
+    this.sprite_G = random(32, 64);
+    this.sprite_B = random(32, 96);
+    this.killingrange = 4;
+    this.isVisible = true;
+    this.reward = 3000;
+    this.hp = 10;
+  }
+
+  update() {
+    super.update();
+    this.toright();
+  }
+
+  draw() {
+    if (this.isVisible) {
+      super.draw();
+      ellipse(this.sprite_x, this.sprite_y, 5, 20);
+      ellipse(this.sprite_x, this.sprite_y, 20, 5);
+    }
+  }
+
+  toright() {
+    this.xspd += 0.004;
+  }
+}
+
 class bigFairy extends Enemy {
   constructor() {
     super();
@@ -1178,7 +1636,10 @@ class Jiki extends Shooter {
           this.sprite_x -= this.xspd;
         }
       }
-      if (keyIsDown(RIGHT_ARROW)) {
+      if (0 < this.cooltime) {
+        this.cooltime--;
+      }
+        if (keyIsDown(RIGHT_ARROW)) {
         if (this.sprite_x < (frameXfrom + frameXto)) {
           this.sprite_x += this.xspd;
         }
