@@ -9,13 +9,15 @@ let [textB3x, textB3y, textSizeB3] = [490, 240, 24];
 let [textB4x, textB4y, textSizeB4] = [490, 280, 24];
 let [textB5x, textB5y, textSizeB5] = [490, 320, 24];
 let [textCx, textCy, textSizeC] = [660, 680, 12];
-let stgTitle = "* S T G * c47.2"
+let stgTitle = "* S T G * c48.0"
 let dice = 0;
 let [gradient_color1, gradient_color2] = [0, 0];
 let fr = 0;
 let game;
 
 function setup() {
+  window.addEventListener("touchstart", function (event) { event.preventDefault(); }, { passive: false });
+  window.addEventListener("touchmove", function (event) { event.preventDefault(); }, { passive: false });
   createCanvas(canvasx, canvasy);
   fr = frameRate();
   game = new Game();
