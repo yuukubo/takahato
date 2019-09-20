@@ -8,8 +8,9 @@ let [textB2x, textB2y, textSizeB2] = [490, 200, 24];
 let [textB3x, textB3y, textSizeB3] = [490, 240, 24];
 let [textB4x, textB4y, textSizeB4] = [490, 280, 24];
 let [textB5x, textB5y, textSizeB5] = [490, 320, 24];
+let [textDx, textDy, textSizeD] = [490, 640, 24];
 let [textCx, textCy, textSizeC] = [660, 680, 12];
-let stgTitle = "* S T G * c48.0"
+let stgTitle = "* S T G * c49.1"
 let dice = 0;
 let [gradient_color1, gradient_color2] = [0, 0];
 let fr = 0;
@@ -48,6 +49,7 @@ class Game {
     this.endingalpha = 0;
     this.carryzanki = 0;
     this.carryspell = 0;
+    this.debugflg = false;
   }
 
   update() {
@@ -57,7 +59,19 @@ class Game {
     }
   }
 
-  draw() {
+  debugmode() {
+    this.jiki.killingrange = 0;
+    this.jiki.zanki = 999;
+    this.jiki.spellstock = 999;
+  }
+
+  enddebug() {
+    this.jiki.killingrange = 2;
+    this.jiki.zanki = 3;
+    this.jiki.spellstock = 3;
+    this.carryzanki = 0;
+    this.carryspell = 0;
+    this.debugflg = false;
   }
 
   scenectl() {
@@ -101,6 +115,9 @@ class Game {
       this.gamescenenow = "introstage1";
       this.titlealpha = 0;
     }
+    if (keyIsDown(68)) {
+      this.debugflg = true;
+    }
   }
 
   titlelogo() {
@@ -116,6 +133,9 @@ class Game {
       fill(255);
       textAlign(LEFT);
       if ((this.age % 60) <= 30) {
+        if (this.debugflg) {
+          fill(255, 255, 0);
+        }
         text("press Z to start !!", canvasx * 2 / 3, canvasy * 2 / 3);
       }
     }
@@ -132,7 +152,10 @@ class Game {
       this.endingalpha = 0;
       this.totalScore = 0;
       this.carryzanki = 0;
-      this.carryspell = 0;  
+      this.carryspell = 0;
+      if (this.debugflg) {
+        this.enddebug();
+      }
     }
   }
 
@@ -170,6 +193,9 @@ class Game {
       this.gamescenenow = "title";
       this.endingalpha = 0;
       this.totalScore = 0;
+      if (this.debugflg) {
+        this.enddebug();
+      }
     }
   }
 
@@ -227,6 +253,9 @@ class Game {
     background(35, 25, 70);
     stgboard(this.stage1age);
     textinfo();
+    if (this.debugflg) {
+      debugtextinfo();
+    }
 
     if (this.jiki.zanki < 0) {
       this.stage1cleanup();
@@ -252,12 +281,10 @@ class Game {
         this.bullets[this.bullets.length - 1].sprite_B += random(-50, 50);
         this.jiki.cooltime = 240;
         this.jiki.isSpell = false;
-      }
-      if (!this.jiki.isLaser && this.jiki.cooltime <= 0) {
+      } else if (!this.jiki.isLaser && this.jiki.cooltime <= 0) {
         this.bullets.push(new BulletFreindly((this.jiki.sprite_x + this.jiki.sprite_w / 2), this.jiki.sprite_y));
         this.jiki.cooltime = 6;
-      }
-      if (this.jiki.isLaser && this.jiki.cooltime <= 0) {
+      } else if (this.jiki.isLaser && this.jiki.cooltime <= 0) {
         this.bullets.push(new BulletFreindlyLaser((this.jiki.sprite_x + this.jiki.sprite_w / 2), this.jiki.sprite_y));
         this.jiki.cooltime = 12;
       }
@@ -534,6 +561,9 @@ class Game {
     this.enemybullets = [];
     this.isstage1bossnow = false;
     [gradient_color1, gradient_color2] = [color(150), color(50)];
+    if (this.debugflg) {
+      this.debugmode();
+    }
   }
 
   stage1cleanup() {
@@ -570,7 +600,7 @@ class Game {
   getjikispellstock() {
     return this.jiki.spellstock;
   }
-  
+
   introscenestage2() {
     background(224, 168, 192);
     if (this.intro2alpha < 255) {
@@ -601,6 +631,9 @@ class Game {
     background(35, 25, 70);
     stgboard(this.stage2age);
     textinfo();
+    if (this.debugflg) {
+      debugtextinfo();
+    }
 
     if (this.jiki.zanki < 0) {
       this.stage2cleanup();
@@ -907,6 +940,9 @@ class Game {
     this.enemybullets = [];
     this.isstage2bossnow = false;
     [gradient_color1, gradient_color2] = [color(168, 32, 128), color(16, 3, 12)];
+    if (this.debugflg) {
+      this.debugmode();
+    }
   }
 
   stage2cleanup() {
@@ -1014,6 +1050,16 @@ function textinfo() {
   fill(255);
   textAlign(LEFT);
   text("FPS : " + fr, textCx, textCy);
+}
+
+function debugtextinfo() {
+  textSize(textSizeD);
+  textFont("Comic Sans MS");
+  fill(255, 255, 0);
+  textAlign(LEFT);
+  text("jiki x : " + game.jiki.sprite_x, textDx, textDy - 80);
+  text("jiki y : " + game.jiki.sprite_y, textDx, textDy - 40);
+  text("game age : " + game.age, textDx, textDy);
 }
 
 function diceroll() {
@@ -1641,7 +1687,7 @@ class Jiki extends Shooter {
       if (0 < this.cooltime) {
         this.cooltime--;
       }
-        if (keyIsDown(RIGHT_ARROW)) {
+      if (keyIsDown(RIGHT_ARROW)) {
         if (this.sprite_x < (frameXfrom + frameXto)) {
           this.sprite_x += this.xspd;
         }
