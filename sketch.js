@@ -10,7 +10,7 @@ let [textB4x, textB4y, textSizeB4] = [490, 280, 24];
 let [textB5x, textB5y, textSizeB5] = [490, 320, 24];
 let [textDx, textDy, textSizeD] = [490, 640, 24];
 let [textCx, textCy, textSizeC] = [660, 680, 12];
-let stgTitle = "* S T G * c49.1"
+let stgTitle = "* S T G * c50.0"
 let dice = 0;
 let [gradient_color1, gradient_color2] = [0, 0];
 let fr = 0;
@@ -50,6 +50,7 @@ class Game {
     this.carryzanki = 0;
     this.carryspell = 0;
     this.debugflg = false;
+    this.scenestack = [];
   }
 
   update() {
@@ -103,6 +104,10 @@ class Game {
       this.gameclear();
       this.update();
     }
+    if (this.gamescenenow === "pause") {
+      this.gamepause();
+      this.update();
+    }
   }
 
   scenetitle() {
@@ -115,7 +120,7 @@ class Game {
       this.gamescenenow = "introstage1";
       this.titlealpha = 0;
     }
-    if (keyIsDown(68)) {
+    if (keyIsDown(68) || touches.length === 3) {
       this.debugflg = true;
     }
   }
@@ -223,6 +228,37 @@ class Game {
     }
   }
 
+  gamepause() {
+    background(100, 10);
+
+    this.pausetext();
+    if (keyIsDown(90)) {
+      this.gamescenenow = this.scenestack.pop();
+    }
+  }
+
+  pausetext() {
+    textSize(64);
+    textFont("Comic Sans MS");
+    fill(255);
+    textAlign(CENTER);
+    text("pause", canvasx / 2, canvasy / 3);
+
+    textSize(16);
+    textFont("Comic Sans MS");
+    fill(255);
+    textAlign(LEFT);
+    text("now  : " + game.scenestack[game.scenestack.length - 1], canvasx * 2 / 3, canvasy * 2 / 3);
+
+    textSize(16);
+    textFont("Comic Sans MS");
+    fill(255);
+    textAlign(LEFT);
+    if ((this.age % 60) <= 30) {
+      text("press Z to Restart Game !!", canvasx * 2 / 3, canvasy * 3 / 4);
+    }
+  }
+
   introscenestage1() {
     background(30);
     if (this.intro1alpha < 255) {
@@ -255,6 +291,10 @@ class Game {
     textinfo();
     if (this.debugflg) {
       debugtextinfo();
+    }
+    if (keyIsDown(ESCAPE)) {
+      this.scenestack.push(this.gamescenenow);
+      this.gamescenenow = "pause";
     }
 
     if (this.jiki.zanki < 0) {
@@ -633,6 +673,10 @@ class Game {
     textinfo();
     if (this.debugflg) {
       debugtextinfo();
+    }
+    if (keyIsDown(ESCAPE)) {
+      this.scenestack.push(this.gamescenenow);
+      this.gamescenenow = "pause";
     }
 
     if (this.jiki.zanki < 0) {
@@ -1679,13 +1723,13 @@ class Jiki extends Shooter {
     if (this.isSuperarmor && this.isPichuuun && (120 < this.SuperarmorTimer)) {
       this.sprite_y -= this.setup_yspd;
     } else if (!this.isPichuuun) {
+      if (0 < this.cooltime) {
+        this.cooltime--;
+      }
       if (keyIsDown(LEFT_ARROW)) {
         if (frameXfrom < this.sprite_x) {
           this.sprite_x -= this.xspd;
         }
-      }
-      if (0 < this.cooltime) {
-        this.cooltime--;
       }
       if (keyIsDown(RIGHT_ARROW)) {
         if (this.sprite_x < (frameXfrom + frameXto)) {
