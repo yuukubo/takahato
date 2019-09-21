@@ -11,7 +11,7 @@ let [textB5x, textB5y, textSizeB5] = [490, 320, 24];
 let [textDx, textDy, textSizeD] = [490, 640, 24];
 let [textCx, textCy, textSizeC] = [660, 680, 12];
 let [textframe_x, textframe_y, textframe_w, textframe_h] = [frameXfrom * 2, canvasy * 3 / 4, frameXto - frameXfrom * 2, canvasy / 4 - frameYfrom];
-let stgTitle = "* S T G * c52.0"
+let stgTitle = "* S T G * c53.0"
 let dice = 0;
 let [gradient_color1, gradient_color2] = [0, 0];
 let fr = 0;
@@ -1648,6 +1648,7 @@ class bigFairy extends Enemy {
     this.spellBonus2 = 20000;
     this.spellBonus3 = 30000;
     this.isSuperarmor = true;
+    this.SuperarmorTimer = 180;
     this.hpbar_w_max = this.hp1;
   }
 
@@ -1655,7 +1656,6 @@ class bigFairy extends Enemy {
     super.update();
     if (this.age === 180) {
       this.stop();
-      this.isSuperarmor = false;
       this.mode_now = this.mode_nomal1;
     }
     if (this.mode_now === this.mode_spell1 && this.hp === (this.spellhp1 / 2)) {
@@ -1682,7 +1682,9 @@ class bigFairy extends Enemy {
       ellipse(this.sprite_x, this.sprite_y - 5, 20, 5);
       fill(this.sprite_R, this.sprite_G, this.sprite_B, this.sprite_Alpha / 3);
       ellipse(this.sprite_x, canvasy - (frameYfrom / 2), 40, 10);
-      if (this.isMagiccircle) {
+      strokeWeight(1);
+      stroke((this.sprite_R), (this.sprite_G), (this.sprite_B), (this.sprite_Alpha / 2));
+    if (this.isMagiccircle) {
         strokeWeight(3);
         stroke((this.sprite_R), (this.sprite_G), (this.sprite_B), (this.sprite_Alpha / 2));
         fill(255, 255, 255, 0);
