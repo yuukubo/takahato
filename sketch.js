@@ -11,7 +11,7 @@ let [textB5x, textB5y, textSizeB5] = [490, 320, 24];
 let [textDx, textDy, textSizeD] = [490, 640, 24];
 let [textCx, textCy, textSizeC] = [660, 680, 12];
 let [textframe_x, textframe_y, textframe_w, textframe_h] = [frameXfrom * 2, canvasy * 3 / 4, frameXto - frameXfrom * 2, canvasy / 4 - frameYfrom];
-let stgTitle = "* S T G * c53.0"
+let stgTitle = "* S T G * c54.0"
 let dice = 0;
 let [gradient_color1, gradient_color2] = [0, 0];
 let fr = 0;
@@ -277,6 +277,7 @@ class Game {
 
     if (this.isstage1prologueEnd) {
       this.gamescenenow = this.scenestack.pop();
+      this.isstage1prologueEnd = false;
     }
   }
 
