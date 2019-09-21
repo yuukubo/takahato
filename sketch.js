@@ -11,7 +11,7 @@ let [textB5x, textB5y, textSizeB5] = [490, 320, 24];
 let [textDx, textDy, textSizeD] = [490, 640, 24];
 let [textCx, textCy, textSizeC] = [660, 680, 12];
 let [textframe_x, textframe_y, textframe_w, textframe_h] = [frameXfrom * 2, canvasy * 3 / 4, frameXto - frameXfrom * 2, canvasy / 4 - frameYfrom];
-let stgTitle = "* S T G * c51.0"
+let stgTitle = "* S T G * c52.0"
 let dice = 0;
 let [gradient_color1, gradient_color2] = [0, 0];
 let fr = 0;
@@ -1648,6 +1648,7 @@ class bigFairy extends Enemy {
     this.spellBonus2 = 20000;
     this.spellBonus3 = 30000;
     this.isSuperarmor = true;
+    this.hpbar_w_max = this.hp1;
   }
 
   update() {
@@ -1690,6 +1691,10 @@ class bigFairy extends Enemy {
         triangle(this.sprite_x + (this.killingrange * 13.5), this.sprite_y + (this.killingrange * 7), this.sprite_x, this.sprite_y - (this.killingrange * 14), this.sprite_x - (this.killingrange * 13.5), this.sprite_y + (this.killingrange * 7));
         triangle(this.sprite_x + (this.killingrange * 13.5), this.sprite_y - (this.killingrange * 7), this.sprite_x, this.sprite_y + (this.killingrange * 14), this.sprite_x - (this.killingrange * 13.5), this.sprite_y - (this.killingrange * 7));
       }
+      fill(192, 0, 192, 20)
+      rect(frameXfrom * 2, frameYfrom * 2, frameXto - frameXfrom * 2, frameYfrom);
+      fill(192, 0, 192, 40)
+      rect(frameXfrom * 2, frameYfrom * 2, (frameXto - frameXfrom * 2) * this.hp / this.hpbar_w_max, frameYfrom);
     }
   }
 
@@ -1709,24 +1714,29 @@ class bigFairy extends Enemy {
         this.mode_now = this.mode_spell1;
         this.isMagiccircle = true;
         this.sprite_G += 50;
+        this.hpbar_w_max = this.spellhp1;
       } else if (this.mode_now === this.mode_spell1) {
         this.hp = this.hp2;
         this.mode_now = this.mode_nomal2;
         this.isMagiccircle = false;
+        this.hpbar_w_max = this.hp2;
       } else if (this.mode_now === this.mode_nomal2) {
         this.hp = this.spellhp2;
         this.mode_now = this.mode_spell2;
         this.isMagiccircle = true;
         this.sprite_G += 50;
+        this.hpbar_w_max = this.spellhp2;
       } else if (this.mode_now === this.mode_spell2) {
         this.hp = this.hp3;
         this.mode_now = this.mode_nomal3;
         this.isMagiccircle = false;
+        this.hpbar_w_max = this.hp3;
       } else if (this.mode_now === this.mode_nomal3) {
         this.hp = this.spellhp3;
         this.mode_now = this.mode_spell3;
         this.isMagiccircle = true;
         this.sprite_G += 50;
+        this.hpbar_w_max = this.spellhp3;
       } else if (this.mode_now === this.mode_spell3) {
         this.hitflg = true;
       }
