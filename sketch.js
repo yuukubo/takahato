@@ -10,7 +10,8 @@ let [textB4x, textB4y, textSizeB4] = [490, 280, 24];
 let [textB5x, textB5y, textSizeB5] = [490, 320, 24];
 let [textDx, textDy, textSizeD] = [490, 640, 24];
 let [textCx, textCy, textSizeC] = [660, 680, 12];
-let stgTitle = "* S T G * c50.0"
+let [textframe_x, textframe_y, textframe_w, textframe_h] = [frameXfrom * 2, canvasy * 3 / 4, frameXto - frameXfrom * 2, canvasy / 4 - frameYfrom];
+let stgTitle = "* S T G * c51.0"
 let dice = 0;
 let [gradient_color1, gradient_color2] = [0, 0];
 let fr = 0;
@@ -51,6 +52,11 @@ class Game {
     this.carryspell = 0;
     this.debugflg = false;
     this.scenestack = [];
+    this.isstage1prologueEnd = false;
+    this.stage1prologueage = 0;
+    this.stage1prologuecursor = 1;
+    this.textinterval = 0;
+    this.textintervaltimer = false;
   }
 
   update() {
@@ -86,6 +92,10 @@ class Game {
     }
     if (this.gamescenenow === "stage1") {
       this.scenestage1();
+      this.update();
+    }
+    if (this.gamescenenow === "stage1prologue") {
+      this.stage1prologue();
       this.update();
     }
     if (this.gamescenenow === "introstage2") {
@@ -259,6 +269,59 @@ class Game {
     }
   }
 
+  stage1prologue() {
+    background(100, 5);
+    this.stage1prologueage++;
+
+    this.stage1prologuetext();
+
+    if (this.isstage1prologueEnd) {
+      this.gamescenenow = this.scenestack.pop();
+    }
+  }
+
+  stage1prologuetext() {
+    strokeWeight(4);
+    stroke(255);
+    fill(100);
+    rect(textframe_x, textframe_y, textframe_w, textframe_h);
+    strokeWeight(1);
+    noStroke();
+    if (60 < this.stage1prologueage && this.stage1prologuecursor === 1) {
+      textSize(16);
+      textFont("Comic Sans MS");
+      fill(255);
+      textAlign(LEFT);
+      text("test 1 1234", textframe_x + frameXfrom, textframe_y + frameYfrom);
+      this.textintervaltimer = true;
+    } else if (this.stage1prologuecursor === 2) {
+      textSize(16);
+      textFont("Comic Sans MS");
+      fill(192, 0, 192);
+      textAlign(LEFT);
+      text("test 2 9876", textframe_x + frameXfrom, textframe_y + frameYfrom);
+      this.textintervaltimer = true;
+    } else if (this.stage1prologuecursor === 3) {
+      textSize(16);
+      textFont("Comic Sans MS");
+      fill(255);
+      textAlign(LEFT);
+      text("test 3 qwert", textframe_x + frameXfrom, textframe_y + frameYfrom);
+      this.textintervaltimer = true;
+    } else if (4 <= this.stage1prologuecursor) {
+      this.isstage1prologueEnd = true;
+      this.stage1prologuecursor = 1;
+    }
+    if (120 <= this.textinterval && (keyIsDown(90) || mouseIsPressed)) {
+      this.stage1prologuecursor++;
+      this.textinterval = 0;
+      this.textintervaltimer = false;
+    }
+    if (this.textintervaltimer) {
+      this.textinterval++;
+    }    
+  }
+
   introscenestage1() {
     background(30);
     if (this.intro1alpha < 255) {
@@ -399,6 +462,10 @@ class Game {
         }
 
         if (this.enemies[s][i] instanceof bigFairy) {
+          if (179 === this.enemies[s][i].age) {
+            this.scenestack.push(this.gamescenenow);
+            this.gamescenenow = "stage1prologue";
+          }
           if (this.enemies[s][i].mode_now === this.enemies[s][i].mode_nomal1) {
             if (this.enemies[s][i].age % 10 === 0) {
               this.enemybullets.push(new bigBulletofEnemy((this.enemies[s][i].sprite_x + this.enemies[s][i].sprite_w / 2), this.enemies[s][i].sprite_y));
